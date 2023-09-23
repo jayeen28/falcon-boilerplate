@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const appMiddlewares = require('./appMiddlewares');
 const services = require('./services');
+const dboperations = require('./db/prisma/dboperations');
 
 module.exports = class Api {
     constructor(_settings, _express) {
@@ -11,14 +12,15 @@ module.exports = class Api {
         this.router = new this.express.Router();
         this.appPath = path.resolve();
         this.config = _settings;
+        this.db = dboperations;
     }
     start() {
-        appMiddlewares.call(this);
         const server = protocol.createServer({
             key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
             cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
         }, this.app);
 
+        appMiddlewares.call(this);
         services.call(this);
 
         this.app.get('*', (req, res) => {

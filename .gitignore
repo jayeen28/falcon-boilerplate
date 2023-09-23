@@ -3,3 +3,7 @@ yarn.lock
 config
 settings
 ssl
+compose.yml
+.env
+prismadb
+migrations
