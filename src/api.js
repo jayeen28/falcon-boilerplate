@@ -10,6 +10,7 @@ const services = require('./services');
 const dboperations = require('./db/prisma/dboperations');
 const fileCtrl = require('./controllers/fileCtrl');
 const appHooks = require('./appHooks');
+const { Server } = require('socket.io');
 
 module.exports = class Api {
     /**
@@ -73,6 +74,14 @@ module.exports = class Api {
             key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
             cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
         }, this.app);
+
+        this.io = new Server(server, {
+            cors: {
+                origin: this.config.origin,
+                methods: ['GET', 'POST'],
+                credentials: true
+            }
+        });
 
         // Call hooks setup
         appHooks.call(this);
