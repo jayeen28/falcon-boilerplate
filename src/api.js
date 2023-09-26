@@ -8,6 +8,7 @@ const fs = require('fs');
 const appMiddlewares = require('./appMiddlewares');
 const services = require('./services');
 const dboperations = require('./db/prisma/dboperations');
+const fileCtrl = require('./controllers/fileCtrl');
 
 module.exports = class Api {
     /**
@@ -52,6 +53,12 @@ module.exports = class Api {
          * @member {object}
          */
         this.db = dboperations;
+
+        /**
+         * Necessary file operations.
+         * @member {object}
+         */
+        this.fileCtrl = fileCtrl;
     }
 
     /**
