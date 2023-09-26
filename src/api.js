@@ -9,6 +9,7 @@ const appMiddlewares = require('./appMiddlewares');
 const services = require('./services');
 const dboperations = require('./db/prisma/dboperations');
 const fileCtrl = require('./controllers/fileCtrl');
+const appHooks = require('./appHooks');
 
 module.exports = class Api {
     /**
@@ -72,6 +73,9 @@ module.exports = class Api {
             key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
             cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
         }, this.app);
+
+        // Call hooks setup
+        appHooks.call(this);
 
         // Call middleware setup
         appMiddlewares.call(this);

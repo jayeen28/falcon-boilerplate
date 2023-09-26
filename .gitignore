@@ -7,3 +7,4 @@ compose.yml
 .env
 prismadb
 migrations
+files
