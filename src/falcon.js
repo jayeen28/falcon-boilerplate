@@ -5,12 +5,12 @@
 const protocol = require(process.env.NODE_ENV === 'production' ? 'https' : 'http');
 const path = require('path');
 const fs = require('fs');
-const appMiddlewares = require('./appMiddlewares');
 const services = require('./services');
 const dboperations = require('./db/prisma/dboperations');
 const fileCtrl = require('./controllers/fileCtrl');
-const appHooks = require('./appHooks');
 const { Server } = require('socket.io');
+const registerMiddlewares = require('./registerMiddlewares');
+const registerHooks = require('./registerHooks');
 
 module.exports = class Falcon {
     /**
@@ -84,10 +84,10 @@ module.exports = class Falcon {
         });
 
         // Call hooks setup
-        appHooks.call(this);
+        registerHooks.call(this);
 
         // Call middleware setup
-        appMiddlewares.call(this);
+        registerMiddlewares.call(this);
 
         // Call services setup
         services.call(this);
