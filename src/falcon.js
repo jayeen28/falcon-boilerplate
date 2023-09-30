@@ -12,7 +12,7 @@ const fileCtrl = require('./controllers/fileCtrl');
 const appHooks = require('./appHooks');
 const { Server } = require('socket.io');
 
-module.exports = class Api {
+module.exports = class Falcon {
     /**
      * Create an instance of the Api class.
      * @constructor
@@ -64,9 +64,9 @@ module.exports = class Api {
     }
 
     /**
-     * Start the API server.
+     * Wake up the falcon and make it ready to fly
      */
-    start() {
+    wake() {
         /**
          * Create an HTTP or HTTPS server based on the environment.
          */

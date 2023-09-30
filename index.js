@@ -1,9 +1,9 @@
 require('dotenv').config();
 const settings = require(`./settings/${process.env.NODE_ENV === 'production' ? 'prod.js' : 'dev.js'}`);
 const express = require('express');
-const Api = require('./src/api');
+const Falcon = require('./src/falcon');
 
 function main() {
-    new Api(settings, express).start();
+    new Falcon(settings, express).wake();
 }
 main();
