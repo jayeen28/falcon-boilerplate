@@ -1,8 +1,8 @@
 /**
- * ShutdownController handles graceful shutdown of a Node.js application by registering event listeners
+ * gracefulShutdown handles graceful shutdown of a Node.js application by registering event listeners
  * for specific signals and errors.
  *
- * @module ShutdownController
+ * @module gracefulShutdown
  */
 
 /**

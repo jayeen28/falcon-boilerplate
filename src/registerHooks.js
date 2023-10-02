@@ -1,5 +1,5 @@
-const shutdownCtrl = require("./controllers/shutdownCtrl");
+const gracefulShutdown = require("./hooks/gracefulShutdown");
 
 module.exports = function () {
-    shutdownCtrl.call(this);
+    gracefulShutdown.call(this);
 }
