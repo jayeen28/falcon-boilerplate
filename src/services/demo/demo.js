@@ -1,9 +1,11 @@
-const { demo } = require("./demo.entity")
+const { demo, demoHit } = require("./demo.entity")
 
-module.exports = function () {
+function api() {
     this.router.get('/demo', demo(this));
-    this.io.on('connection', (socket) => {
-        socket.on('hello', () => console.log('hi'))
-    });
-    this.io.on('connection', (socket) => socket.disconnect())
 }
+
+function socket() {
+    this.socket.on('hit', demoHit(this));
+}
+
+module.exports = { api, socket };

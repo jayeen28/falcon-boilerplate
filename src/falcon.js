@@ -70,12 +70,12 @@ module.exports = class Falcon {
         /**
          * Create an HTTP or HTTPS server based on the environment.
          */
-        const server = protocol.createServer({
+        this.server = protocol.createServer({
             key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
             cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
         }, this.app);
 
-        this.io = new Server(server, {
+        this.io = new Server(this.server, {
             cors: {
                 origin: this.config.origin,
                 methods: ['GET', 'POST'],
@@ -90,7 +90,8 @@ module.exports = class Falcon {
         registerMiddlewares.call(this);
 
         // Call services setup
-        services.call(this);
+        services.apiServices.call(this);
+        this.io.on('connection', (socket) => services.socketServices.call({ ...this, socket }));//register socket services for every connection
 
         /**
          * Handle GET requests by serving the client's index.html.
@@ -102,6 +103,6 @@ module.exports = class Falcon {
         /**
          * Listen for incoming connections on the specified port.
          */
-        server.listen(this.config.port || 4000, () => console.info(`Server is up on port ${this.config.port}`));
+        this.server.listen(this.config.port || 4000, () => console.info(`Server is up on port ${this.config.port}`));
     }
 };

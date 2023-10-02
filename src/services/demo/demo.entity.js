@@ -9,4 +9,8 @@ const demo = ({ db }) => async (req, res) => {
     }
 }
 
-module.exports = { demo };
+const demoHit = ({ db, socket }) => (data) => {
+    return socket.emit('hitBack', data);
+};
+
+module.exports = { demo, demoHit };
