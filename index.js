@@ -4,6 +4,9 @@ const express = require('express');
 const Falcon = require('./src/falcon');
 
 function main() {
-    new Falcon(settings, express).wake();
+    const falcon = new Falcon(settings, express);
+    const isWokeUp = falcon.wake();
+    if (isWokeUp) falcon.fly();
+    else console.log('Failed to fly');
 }
 main();

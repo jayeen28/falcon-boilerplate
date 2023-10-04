@@ -82,34 +82,46 @@ module.exports = class Falcon {
      * Wake up the falcon and make it ready to fly
      */
     wake() {
-        /**
-         * Create an HTTP or HTTPS server based on the environment.
-         */
-        this.server = protocol.createServer({
-            key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
-            cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
-        }, this.app);
+        try {
+            /**
+             * Create an HTTP or HTTPS server based on the environment.
+             */
+            this.server = protocol.createServer({
+                key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
+                cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
+            }, this.app);
 
-        this.io = new Server(this.server, {
-            cors: {
-                origin: this.config.origin,
-                methods: ['GET', 'POST'],
-                credentials: true
-            }
-        });
+            this.io = new Server(this.server, {
+                cors: {
+                    origin: this.config.origin,
+                    methods: ['GET', 'POST'],
+                    credentials: true
+                }
+            });
 
-        // Call hooks setup
-        hooksCaller.call(this);
+            // Call hooks setup
+            hooksCaller.call(this);
 
-        // Call middleware setup
-        startupMiddlewares.call(this);
+            // Call middleware setup
+            startupMiddlewares.call(this);
 
-        // Call services setup
-        services.apiServices.call(this);
-        this.io.on('connection', (socket) => services.socketServices.call({ ...this, socket }));//register socket services for every connection
+            // Call services setup
+            services.apiServices.call(this);
+            return true;
+        }
+        catch (e) {
+            console.log(e);
+            return false
+        }
+    }
 
+    /**
+     * Starts the server and handles incoming connections.
+     */
+    fly() {
         /**
          * Handle GET requests by serving the client's index.html.
+         * This ensures that the client-side application loads correctly.
          */
         this.app.get('*', (req, res) => {
             res.sendFile(path.join(this.appPath, 'client', 'index.html'));
@@ -117,7 +129,21 @@ module.exports = class Falcon {
 
         /**
          * Listen for incoming connections on the specified port.
+         * If a custom port is provided in the configuration, it will be used;
+         * otherwise, the default port 4000 will be used.
+         * A log message is printed to the console to indicate that the server is running.
          */
         this.server.listen(this.config.port || 4000, () => console.info(`Server is up on port ${this.config.port}`));
+
+        /**
+         * Register socket services for every connection.
+         * This allows Socket.IO-based services to be available to clients
+         * as soon as they connect to the server.
+         */
+        this.io.on('connection', (socket) => {
+            console.log(`Connected with socket. ID: ${socket.id}`);
+            services.socketServices.call({ ...this, socket });
+            socket.on('disconnect', () => console.log(`Disconnected from socket. ID: ${socket.id}`))
+        });
     }
 };
