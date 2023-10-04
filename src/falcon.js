@@ -9,8 +9,9 @@ const services = require('./services');
 const dboperations = require('./db/prisma/dboperations');
 const fileCtrl = require('./controllers/fileCtrl');
 const { Server } = require('socket.io');
-const registerMiddlewares = require('./registerMiddlewares');
-const registerHooks = require('./registerHooks');
+const startupMiddlewares = require('./startupMiddlewares');
+const hooksCaller = require('./hooksCaller');
+const EventEmitter = require('events');
 
 module.exports = class Falcon {
     /**
@@ -61,6 +62,14 @@ module.exports = class Falcon {
          * @member {object}
          */
         this.fileCtrl = fileCtrl;
+
+        /**
+         * An EventEmitter instance used for inter-component communication within the application.
+         * This emitter allows various parts of the application to communicate and emit events.
+         *
+         * @member {EventEmitter}
+         */
+        this.emitter = new EventEmitter();
     }
 
     /**
@@ -84,10 +93,10 @@ module.exports = class Falcon {
         });
 
         // Call hooks setup
-        registerHooks.call(this);
+        hooksCaller.call(this);
 
         // Call middleware setup
-        registerMiddlewares.call(this);
+        startupMiddlewares.call(this);
 
         // Call services setup
         services.apiServices.call(this);

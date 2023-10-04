@@ -8,3 +8,4 @@ compose.yml
 prismadb
 migrations
 files
+error.log

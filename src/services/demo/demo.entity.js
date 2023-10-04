@@ -1,12 +1,10 @@
-const demo = ({ db }) => async (req, res) => {
+const demo = ({ db }) => async (req, res, next) => {
     try {
-        await db.create({ table: 'user', payload: { body: { email: 'md.jayeen@gmail.com' } } })
-        res.status(200).send({ message: 'demo success' });
+        // await db.create({ table: 'user', payload: { body: { email: 'md.jayeen@gmail.com' } } })
+        // res.status(200).send({ message: 'demo success' });
+        throw new Error('Hey')
     }
-    catch (e) {
-        console.log(e);
-        res.status(500).send({ message: 'something went wrong' });
-    }
+    catch (e) { next(e) }
 }
 
 const demoHit = ({ db, socket }) => (data) => {
