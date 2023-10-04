@@ -46,6 +46,12 @@ module.exports = class Falcon {
         this.appPath = path.resolve();
 
         /**
+         * The absolute path for saving api error logs.
+         * @member {string}
+         */
+        this.apiErrorPath = path.join(this.appPath, 'apiError.log');
+
+        /**
          * Configuration settings for the API.
          * @member {object}
          */

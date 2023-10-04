@@ -1,7 +1,6 @@
 const fs = require('fs');
-const path = require('path');
 
-function errorMiddleware({ appPath }) {
+function errorMiddleware({ apiErrorPath }) {
     return (err, req, res, next) => {
         // Extract relevant request information
         const { method, originalUrl, params, query, body } = req;
@@ -14,7 +13,7 @@ function errorMiddleware({ appPath }) {
             `Body: ${JSON.stringify(body)}\n` +
             `${err.stack}\n`;
 
-        fs.appendFile(path.join(appPath, 'error.log'), logMessage, (fileErr) => {
+        fs.appendFile(apiErrorPath, logMessage, (fileErr) => {
             if (fileErr) {
                 console.error('Error logging to file:', fileErr);
             }
