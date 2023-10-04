@@ -1,19 +1,22 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 function convertToSkipAndTake(page, limit) {
     const take = limit;
     const skip = (page - 1) * limit;
+
     return { skip, take };
 }
 
-const find = async ({ table, payload = {} }) => {
+export const find = async ({ table, payload = {} }) => {
     try {
-        let { query: { page = 1, limit = 10, paginate = false }, sortBy, select, where, orderBy } = payload;
-        page = parseInt(page);
-        limit = parseInt(limit);
+        let { query: { page, limit = 10 } = {}, sortBy, select, where, orderBy } = payload;
+        const paginate = Boolean(page);
+        if (paginate) {
+            page = parseInt(page);
+            limit = parseInt(limit);
+        }
         where = typeof where === 'string' ? JSON.parse(where || '{}') : where;
-
         if (sortBy) {
             sortBy = sortBy.replace(/'/g, '');
             const parts = sortBy.split(':');
@@ -32,7 +35,7 @@ const find = async ({ table, payload = {} }) => {
                     ...sortBy
                 },
             }),
-            paginate ? prisma[table].count({ where }) : 0, // Count total documents if pagination requested
+            paginate ? prisma[table].count({ where }) : 0, // Count total documents
         ]);
 
         if (!paginate) return result;
@@ -49,20 +52,19 @@ const find = async ({ table, payload = {} }) => {
             prevPage: page > 1 ? page - 1 : null,
         };
     } catch (e) {
-        console.log(e);
-        throw new Error('Could not find');
+        throw new Error(e.message);
     }
 };
 
 
-const findOne = ({ table, payload: { query = {}, ...rest } = {} }) => {
+export const findOne = ({ table, payload: { query = {}, ...rest } = {} }) => {
     return prisma[table].findUnique({
         where: query,
         ...rest || {},
     });
 };
 
-const create = ({ table, payload = {} }) => {
+export const create = ({ table, payload }) => {
     const { body, include } = payload;
     return prisma[table].create({
         data: body,
@@ -70,27 +72,27 @@ const create = ({ table, payload = {} }) => {
     });
 };
 
-const update = ({ table, payload: { id, data, select, include } }) => {
+export const update = ({ table, payload: { id, where, data, select, include } }) => {
     return prisma[table].update({
-        where: { id },
+        where: where || { id },
         data,
         ...select && { select },
         ...include && { include }
     });
 };
 
-const lightRemove = async ({ table, payload: { id } }) => {
+export const lightDel = ({ table, payload: { id } }) => {
     return prisma[table].update({
         where: { id, visible: true },
         data: { visible: false },
     });
 };
 
-const hardRemove = async ({ table, payload: { id } }) => prisma[table].delete({ where: { id } });
+export const hardDel = ({ table, payload: { id } }) => {
+    return prisma[table].delete({ where: { id } });
+};
 
-const bulkCreate = async (table, docs) => prisma[table].createMany({
+export const bulkCreate = (table, docs) => prisma[table].createMany({
     docs,
     skipDuplicates: true,
 });
-
-module.exports = { bulkCreate, findOne, hardRemove, lightRemove, update, find, create };
