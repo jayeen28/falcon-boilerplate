@@ -1,6 +1,12 @@
-import { PrismaClient } from '@prisma/client';
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
+/**
+ * Converts page and limit values to skip and take for pagination.
+ * @param {number} page - The page number.
+ * @param {number} limit - The number of items per page.
+ * @returns {Pagination} - Object containing skip and take values.
+ */
 function convertToSkipAndTake(page, limit) {
     const take = limit;
     const skip = (page - 1) * limit;
@@ -8,7 +14,22 @@ function convertToSkipAndTake(page, limit) {
     return { skip, take };
 }
 
-export const find = async ({ table, payload = {} }) => {
+/**
+ * Finds and retrieves data from the database.
+ * @param {Object} options - Options for the find operation.
+ * @param {string} options.table - The name of the database table to query.
+ * @param {Object} [options.payload={}] - Additional payload options.
+ * @param {Object} options.payload.query - The query parameters.
+ * @param {number|string} options.payload.query.page - The page number for pagination.
+ * @param {number|string} options.payload.query.limit - The number of items per page for pagination.
+ * @param {string} options.payload.sortBy - The field and order to sort by.
+ * @param {string[]} options.payload.select - The fields to select.
+ * @param {string|Object} options.payload.where - The filter criteria.
+ * @param {Object} options.payload.orderBy - The order criteria.
+ * @returns {Promise<Array|Object>} - The found data or pagination information.
+ * @throws {Error} - Throws an error if an issue occurs during the database query.
+ */
+async function find({ table, payload = {} }) {
     try {
         let { query: { page, limit = 10 } = {}, sortBy, select, where, orderBy } = payload;
         const paginate = Boolean(page);
@@ -54,45 +75,98 @@ export const find = async ({ table, payload = {} }) => {
     } catch (e) {
         throw new Error(e.message);
     }
-};
+}
 
-
-export const findOne = ({ table, payload: { query = {}, ...rest } = {} }) => {
+/**
+ * Finds and retrieves a single item from the database.
+ * @param {Object} options - Options for the findOne operation.
+ * @param {string} options.table - The name of the database table to query.
+ * @param {Object} [options.payload={}] - Additional payload options.
+ * @param {Object} options.payload.query - The query parameters.
+ * @returns {Promise<Object|null>} - The found item or null if not found.
+ */
+function findOne({ table, payload: { query = {}, ...rest } = {} }) {
     return prisma[table].findUnique({
         where: query,
         ...rest || {},
     });
-};
+}
 
-export const create = ({ table, payload }) => {
+/**
+ * Creates a new item in the database.
+ * @param {Object} options - Options for the create operation.
+ * @param {string} options.table - The name of the database table to insert into.
+ * @param {Object} options.payload - Payload containing data and include options.
+ * @returns {Promise<Object>} - The created item.
+ */
+function create({ table, payload }) {
     const { body, include } = payload;
     return prisma[table].create({
         data: body,
         ...include && { include },
     });
-};
+}
 
-export const update = ({ table, payload: { id, where, data, select, include } }) => {
+/**
+ * Bulk inserts multiple items into the database.
+ * @param {string} table - The name of the database table to insert into.
+ * @param {Array<Object>} docs - An array of objects to insert.
+ * @returns {Promise<Array<Object>>} - The created items.
+ */
+function bulkCreate(table, docs) {
+    return prisma[table].createMany({
+        docs,
+        skipDuplicates: true,
+    });
+}
+
+/**
+ * Updates an item in the database.
+ * @param {Object} options - Options for the update operation.
+ * @param {string} options.table - The name of the database table to update.
+ * @param {Object} options.payload - Payload containing id, where, data, select, and include options.
+ * @returns {Promise<Object|null>} - The updated item or null if not found.
+ */
+function update({ table, payload: { id, where, data, select, include } }) {
     return prisma[table].update({
         where: where || { id },
         data,
         ...select && { select },
         ...include && { include }
     });
-};
+}
 
-export const lightDel = ({ table, payload: { id } }) => {
+/**
+ * Soft deletes an item in the database by marking it as invisible.
+ * @param {Object} options - Options for the soft delete operation.
+ * @param {string} options.table - The name of the database table to update.
+ * @param {Object} options.payload - Payload containing the id to delete.
+ * @returns {Promise<Object|null>} - The updated item or null if not found.
+ */
+function softDelete({ table, payload: { id } }) {
     return prisma[table].update({
         where: { id, visible: true },
         data: { visible: false },
     });
-};
+}
 
-export const hardDel = ({ table, payload: { id } }) => {
+/**
+ * Hard deletes an item from the database.
+ * @param {Object} options - Options for the hard delete operation.
+ * @param {string} options.table - The name of the database table to delete from.
+ * @param {Object} options.payload - Payload containing the id to delete.
+ * @returns {Promise<void>} - Resolves when the item is deleted.
+ */
+function hardDelete({ table, payload: { id } }) {
     return prisma[table].delete({ where: { id } });
-};
+}
 
-export const bulkCreate = (table, docs) => prisma[table].createMany({
-    docs,
-    skipDuplicates: true,
-});
+module.exports = {
+    find,
+    findOne,
+    create,
+    bulkCreate,
+    update,
+    softDelete,
+    hardDelete,
+};

@@ -87,8 +87,10 @@ module.exports = class Falcon {
              * Create an HTTP or HTTPS server based on the environment.
              */
             this.server = protocol.createServer({
-                key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
-                cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
+                ...process.env.NODE_ENV === 'production' && {
+                    key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
+                    cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
+                }
             }, this.app);
 
             this.io = new Server(this.server, {
