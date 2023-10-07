@@ -1,0 +1,10 @@
+{
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2,
+    "editor.indentSize": "tabSize",
+    "editor.tabCompletion": "on",
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.minimap.enabled": false,
+}
