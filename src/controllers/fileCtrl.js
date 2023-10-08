@@ -20,7 +20,7 @@ const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'svg', 'gif', 'avif', 'webp'];
 const fileDir = path.join(path.resolve(), 'files');
 
 // Ensure the file directory exists, creating it if necessary.
-if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir);
+if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir, { recursive: true });
 
 /**
  * Asynchronous function to download an image from a provided URL, save it to a local directory,
@@ -33,26 +33,26 @@ if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir);
  * or if any other error occurs during the download and save process.
  */
 async function fileUp(link) {
-    if (!link) {
-        return null;
-    }
+  if (!link) {
+    return null;
+  }
 
-    const extIndex = link.lastIndexOf('.');
-    if (extIndex === -1) {
-        throw new Error('Link does not contain a file extension.');
-    }
+  const extIndex = link.lastIndexOf('.');
+  if (extIndex === -1) {
+    throw new Error('Link does not contain a file extension.');
+  }
 
-    const ext = link.substring(extIndex + 1);
-    if (!ALLOWED_EXTENSIONS.includes(ext.toLowerCase())) {
-        throw new Error('Invalid file extension.');
-    }
+  const ext = link.substring(extIndex + 1);
+  if (!ALLOWED_EXTENSIONS.includes(ext.toLowerCase())) {
+    throw new Error('Invalid file extension.');
+  }
 
-    const fileName = randomBytes(16).toString('hex') + '.' + ext;
-    const buffer = fs.readFileSync(link);
-    const filePath = path.join(fileDir, fileName);
-    fs.writeFileSync(filePath, buffer);
+  const fileName = randomBytes(16).toString('hex') + '.' + ext;
+  const buffer = fs.readFileSync(link);
+  const filePath = path.join(fileDir, fileName);
+  fs.writeFileSync(filePath, buffer);
 
-    return fileName;
+  return fileName;
 }
 
 /**
@@ -65,14 +65,14 @@ async function fileUp(link) {
  * @returns {Promise<boolean>} - A Promise that resolves to true if the chunk is written successfully, or false on error.
  */
 function writeChunk({ fileNametoSave, chunk, appendFlag }) {
-    return new Promise((resolve, reject) => {
-        fs.appendFile(path.join(fileDir, fileNametoSave), Buffer.from(chunk, 'base64'), { flag: appendFlag }, (err) => {
-            if (err) {
-                return reject('Error writing chunk to file');
-            }
-            return resolve(true);
-        });
+  return new Promise((resolve, reject) => {
+    fs.appendFile(path.join(fileDir, fileNametoSave), Buffer.from(chunk, 'base64'), { flag: appendFlag }, (err) => {
+      if (err) {
+        return reject('Error writing chunk to file');
+      }
+      return resolve(true);
     });
+  });
 }
 
 /**
@@ -84,14 +84,14 @@ function writeChunk({ fileNametoSave, chunk, appendFlag }) {
  * @throws {Error} - Throws an error if the files parameter is invalid or empty.
  */
 async function allFileExist(files) {
-    if (!files?.length) {
-        throw new Error('Invalid or empty file list.');
-    }
+  if (!files?.length) {
+    throw new Error('Invalid or empty file list.');
+  }
 
-    return files.every(f => {
-        const filePath = path.join(fileDir, f.location);
-        return fs.existsSync(filePath);
-    });
+  return files.every(f => {
+    const filePath = path.join(fileDir, f.location);
+    return fs.existsSync(filePath);
+  });
 }
 
 /**
@@ -102,18 +102,18 @@ async function allFileExist(files) {
  * @returns {Promise<boolean>} - A Promise that resolves to true if all files are removed successfully, or false on error.
  */
 async function rmFiles(files) {
-    try {
-        await Promise.all(files.map(async ({ location }) => {
-            const filePath = path.join(fileDir, location);
-            await fs.promises.unlink(filePath);
-            console.log(`File removed: ${path.basename(filePath)}`);
-            return;
-        }));
-        return true;
-    } catch (error) {
-        console.error('Error removing files:', error);
-        return false;
-    }
+  try {
+    await Promise.all(files.map(async ({ location }) => {
+      const filePath = path.join(fileDir, location);
+      await fs.promises.unlink(filePath);
+      console.log(`File removed: ${path.basename(filePath)}`);
+      return;
+    }));
+    return true;
+  } catch (error) {
+    console.error('Error removing files:', error);
+    return false;
+  }
 }
 
 module.exports = { rmFiles, allFileExist, fileUp, writeChunk, fileDir, ALLOWED_EXTENSIONS };
