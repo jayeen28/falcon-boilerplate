@@ -1,172 +1,208 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-/**
- * Converts page and limit values to skip and take for pagination.
- * @param {number} page - The page number.
- * @param {number} limit - The number of items per page.
- * @returns {Pagination} - Object containing skip and take values.
- */
-function convertToSkipAndTake(page, limit) {
-    const take = limit;
-    const skip = (page - 1) * limit;
+// Function to check if the table has the 'visible' field
+function hasVisibleField(table) {
+  const model = Prisma.dmmf.datamodel.models.find((model) => model.name.toLocaleLowerCase() === table);
 
-    return { skip, take };
+  if (model) {
+    return model.fields.some((field) => field.name === 'visible');
+  }
+  return false;
+}
+
+// Function to convert page and limit into skip and take values for pagination
+function convertToSkipAndTake(page, limit) {
+  const take = limit;
+  const skip = (page - 1) * limit;
+
+  return { skip, take };
 }
 
 /**
- * Finds and retrieves data from the database.
+ * Finds records in the database based on specified criteria.
+ *
+ * @async
  * @param {Object} options - Options for the find operation.
- * @param {string} options.table - The name of the database table to query.
- * @param {Object} [options.payload={}] - Additional payload options.
- * @param {Object} options.payload.query - The query parameters.
- * @param {number|string} options.payload.query.page - The page number for pagination.
- * @param {number|string} options.payload.query.limit - The number of items per page for pagination.
- * @param {string} options.payload.sortBy - The field and order to sort by.
- * @param {string[]} options.payload.select - The fields to select.
- * @param {string|Object} options.payload.where - The filter criteria.
- * @param {Object} options.payload.orderBy - The order criteria.
- * @returns {Promise<Array|Object>} - The found data or pagination information.
- * @throws {Error} - Throws an error if an issue occurs during the database query.
+ * @param {string} options.table - The table name to query.
+ * @param {Object} [options.payload={}] - Payload containing query parameters.
+ * @param {Object} options.payload.query - Query parameters for filtering.
+ * @returns {Promise<Array>|Promise<Object>} An array of records or a paginated result object.
+ * @throws {Error} Throws an error if an exception occurs during the operation.
  */
 async function find({ table, payload = {} }) {
-    try {
-        let { query: { page, limit = 10 } = {}, sortBy, select, where, orderBy } = payload;
-        const paginate = Boolean(page);
-        if (paginate) {
-            page = parseInt(page);
-            limit = parseInt(limit);
-        }
-        where = typeof where === 'string' ? JSON.parse(where || '{}') : where;
-        if (sortBy) {
-            sortBy = sortBy.replace(/'/g, '');
-            const parts = sortBy.split(':');
-            sortBy = {
-                [parts[0]]: parts[1],
-            };
-        }
+  try {
+    // Destructure query parameters from the payload object
+    let { query: { page, limit = 10, where = {}, orderBy }, select } = payload;
 
-        const [result, totalDocs] = await Promise.all([
-            prisma[table].findMany({
-                ...paginate && convertToSkipAndTake(page, limit),
-                where,
-                select,
-                orderBy: {
-                    ...orderBy,
-                    ...sortBy
-                },
-            }),
-            paginate ? prisma[table].count({ where }) : 0, // Count total documents
-        ]);
+    // Parse the 'where' JSON string if it's provided as a string
+    if (typeof where === 'string') where = JSON.parse(where);
 
-        if (!paginate) return result;
+    // Check if pagination is requested
+    const paginate = Boolean(page);
 
-        return {
-            docs: result,
-            totalDocs,
-            limit,
-            page,
-            totalPages: Math.ceil(totalDocs / limit),
-            hasNextPage: totalDocs > (page * limit),
-            nextPage: totalDocs > (page * limit) ? page + 1 : null,
-            hasPrevPage: page > 1,
-            prevPage: page > 1 ? page - 1 : null,
-        };
-    } catch (e) {
-        throw new Error(e.message);
+    // If pagination is requested, parse and convert page and limit to numbers
+    if (paginate) {
+      page = parseInt(page);
+      limit = parseInt(limit);
     }
+
+    // Parse and format the 'orderBy' parameter
+    if (orderBy) {
+      orderBy = orderBy.replace(/'/g, '');
+      const parts = orderBy.split(':');
+      orderBy = {
+        [parts[0]]: parts[1],
+      };
+    }
+    if (hasVisibleField(table)) where.visible = true;
+    // Fetch records and count total documents in parallel
+    const [result, totalDocs] = await Promise.all([
+      prisma[table].findMany({
+        ...paginate && convertToSkipAndTake(page, limit),
+        where,
+        ...select && { select }, // select parameter is not defined in the code
+        orderBy,
+      }),
+      paginate ? prisma[table].count({ where }) : 0, // Count total documents
+    ]);
+
+    // If no pagination is requested, return the result
+    if (!paginate) return result;
+
+    // If pagination is requested, format the result for pagination
+    return {
+      docs: result,
+      totalDocs,
+      limit,
+      page,
+      totalPages: Math.ceil(totalDocs / limit),
+      hasNextPage: totalDocs > (page * limit),
+      nextPage: totalDocs > (page * limit) ? page + 1 : null,
+      hasPrevPage: page > 1,
+      prevPage: page > 1 ? page - 1 : null,
+    };
+  } catch (e) {
+    // Catch and re-throw any errors that occur
+    throw new Error(e);
+  }
 }
 
 /**
- * Finds and retrieves a single item from the database.
+ * Finds a single record in the database based on specified criteria.
+ *
  * @param {Object} options - Options for the findOne operation.
- * @param {string} options.table - The name of the database table to query.
- * @param {Object} [options.payload={}] - Additional payload options.
- * @param {Object} options.payload.query - The query parameters.
- * @returns {Promise<Object|null>} - The found item or null if not found.
+ * @param {string} options.table - The table name to query.
+ * @param {Object} [options.payload={}] - Payload containing query parameters.
+ * @param {Object} options.payload.query - Query parameters for filtering.
+ * @returns {Promise<Object|null>} A single record or null if not found.
  */
 function findOne({ table, payload: { query = {}, ...rest } = {} }) {
-    return prisma[table].findUnique({
-        where: query,
-        ...rest || {},
-    });
+  if (hasVisibleField(table)) where.visible = true;
+  return prisma[table].findUnique({
+    where: query,
+    ...rest || {},
+  });
 }
 
 /**
- * Creates a new item in the database.
+ * Creates a new record in the database.
+ *
  * @param {Object} options - Options for the create operation.
- * @param {string} options.table - The name of the database table to insert into.
- * @param {Object} options.payload - Payload containing data and include options.
- * @returns {Promise<Object>} - The created item.
+ * @param {string} options.table - The table name to insert into.
+ * @param {Object} options.payload - Payload containing data to insert.
+ * @returns {Promise<Object>} The created record.
  */
-function create({ table, payload }) {
-    const { body, include } = payload;
-    return prisma[table].create({
-        data: body,
-        ...include && { include },
-    });
+function create({ table, payload: { data, ...rest } }) {
+  return prisma[table].create({
+    data,
+    ...rest,
+  });
 }
 
 /**
- * Bulk inserts multiple items into the database.
- * @param {string} table - The name of the database table to insert into.
+ * Bulk inserts multiple records into the database.
+ *
+ * @param {string} table - The table name to insert into.
  * @param {Array<Object>} docs - An array of objects to insert.
- * @returns {Promise<Array<Object>>} - The created items.
+ * @returns {Promise<Array<Object>>} An array of created records.
  */
 function bulkCreate(table, docs) {
-    return prisma[table].createMany({
-        docs,
-        skipDuplicates: true,
-    });
+  return prisma[table].createMany({
+    docs,
+    skipDuplicates: true,
+  });
 }
 
 /**
- * Updates an item in the database.
+ * Updates an existing record in the database.
+ *
  * @param {Object} options - Options for the update operation.
- * @param {string} options.table - The name of the database table to update.
- * @param {Object} options.payload - Payload containing id, where, data, select, and include options.
- * @returns {Promise<Object|null>} - The updated item or null if not found.
+ * @param {string} options.table - The table name to update.
+ * @param {Object} options.payload - Payload containing ID and data for the update.
+ * @returns {Promise<Object>} The updated record.
  */
-function update({ table, payload: { id, where, data, select, include } }) {
-    return prisma[table].update({
-        where: where || { id },
-        data,
-        ...select && { select },
-        ...include && { include }
-    });
+function update({ table, payload: { id, data, ...rest } }) {
+  return prisma[table].update({
+    where: { id, ...hasVisibleField(table) && { visible: true } },
+    data,
+    ...rest,
+  });
 }
 
 /**
- * Soft deletes an item in the database by marking it as invisible.
- * @param {Object} options - Options for the soft delete operation.
- * @param {string} options.table - The name of the database table to update.
- * @param {Object} options.payload - Payload containing the id to delete.
- * @returns {Promise<Object|null>} - The updated item or null if not found.
+ * Performs a soft delete (updates visibility) on a record in the database.
+ *
+ * @param {Object} options - Options for the softDelete operation.
+ * @param {string} options.table - The table name to update.
+ * @param {Object} options.payload - Payload containing ID for the soft delete.
+ * @returns {Promise<Object>} The updated record after soft deletion.
  */
 function softDelete({ table, payload: { id } }) {
-    return prisma[table].update({
-        where: { id, visible: true },
-        data: { visible: false },
-    });
+  if (!hasVisibleField(table)) throw new Error('No visiable field inside schema');
+  return prisma[table].update({
+    where: { id, visible: true },
+    data: { visible: false },
+  });
 }
 
 /**
- * Hard deletes an item from the database.
- * @param {Object} options - Options for the hard delete operation.
- * @param {string} options.table - The name of the database table to delete from.
- * @param {Object} options.payload - Payload containing the id to delete.
- * @returns {Promise<void>} - Resolves when the item is deleted.
+ * Performs a restore (updates visibility) on a record in the database.
+ *
+ * @param {Object} options - Options for the restone operation.
+ * @param {string} options.table - The table name to update.
+ * @param {Object} options.payload - Payload containing ID for the restore.
+ * @returns {Promise<Object>} The updated record after restore.
  */
-function hardDelete({ table, payload: { id } }) {
-    return prisma[table].delete({ where: { id } });
+function restore({ table, payload: { id } }) {
+  if (!hasVisibleField(table)) throw new Error('No visiable field inside schema');
+  return prisma[table].update({
+    where: { id, visible: false },
+    data: { visible: true },
+  });
 }
 
+
+/**
+ * Performs a hard delete (removes) a record from the database.
+ *
+ * @param {Object} options - Options for the hardDelete operation.
+ * @param {string} options.table - The table name to delete from.
+ * @param {Object} options.payload - Payload containing ID for the hard delete.
+ * @returns {Promise<void>} Resolves when the deletion is successful.
+ */
+function hardDelete({ table, payload: { id } }) {
+  return prisma[table].delete({ where: { id } });
+}
+
+// Export all the functions as part of a module
 module.exports = {
-    find,
-    findOne,
-    create,
-    bulkCreate,
-    update,
-    softDelete,
-    hardDelete,
+  find,
+  findOne,
+  create,
+  bulkCreate,
+  update,
+  softDelete,
+  restore,
+  hardDelete,
 };
