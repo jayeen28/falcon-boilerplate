@@ -97,10 +97,10 @@ async function find({ table, payload = {} }) {
  * @param {Object} options.payload.query - Query parameters for filtering.
  * @returns {Promise<Object|null>} A single record or null if not found.
  */
-function findOne({ table, payload: { query = {}, ...rest } = {} }) {
+function findOne({ table, payload: { where = {}, ...rest } = {} }) {
   if (hasVisibleField(table)) where.visible = true;
   return prisma[table].findUnique({
-    where: query,
+    where,
     ...rest || {},
   });
 }
@@ -142,9 +142,13 @@ function bulkCreate(table, docs) {
  * @param {Object} options.payload - Payload containing ID and data for the update.
  * @returns {Promise<Object>} The updated record.
  */
-function update({ table, payload: { id, data, ...rest } }) {
+function update({ table, payload: { id, data, where = {}, ...rest } }) {
   return prisma[table].update({
-    where: { id, ...hasVisibleField(table) && { visible: true } },
+    where: {
+      id,
+      ...where,
+      ...hasVisibleField(table) && { visible: true }
+    },
     data,
     ...rest,
   });
@@ -182,7 +186,6 @@ function restore({ table, payload: { id } }) {
   });
 }
 
-
 /**
  * Performs a hard delete (removes) a record from the database.
  *
@@ -205,4 +208,9 @@ module.exports = {
   softDelete,
   restore,
   hardDelete,
+  prismaError: Prisma.PrismaClientKnownRequestError,
+  codes: {
+    'NOT_FOUND': 'P2025',
+    'DUPLICATE_FOUND': 'P2002',
+  }
 };
