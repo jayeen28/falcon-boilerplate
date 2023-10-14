@@ -10,8 +10,8 @@ const dboperations = require('./db/prisma/dboperations');
 const fileCtrl = require('./controllers/fileCtrl');
 const { Server } = require('socket.io');
 const startupMiddlewares = require('./startupMiddlewares');
-const hooksCaller = require('./hooksCaller');
 const EventEmitter = require('events');
+const hooks = require('./hooks');
 
 module.exports = class Falcon {
   /**
@@ -46,16 +46,16 @@ module.exports = class Falcon {
     this.appPath = path.resolve();
 
     /**
-     * The absolute path for saving api error logs.
-     * @member {string}
-     */
-    this.apiErrorPath = path.join(this.appPath, 'apiError.log');
-
-    /**
      * Configuration settings for the API.
      * @member {object}
      */
     this.config = _settings;
+
+    /**
+     * The absolute path for saving api error logs.
+     * @member {string}
+     */
+    this.apiErrorPath = path.join(this.appPath, 'apiError.log');
 
     /**
      * Database operations module.
@@ -102,7 +102,7 @@ module.exports = class Falcon {
       });
 
       // Call hooks setup
-      hooksCaller.call(this);
+      hooks.call(this);
 
       // Call middleware setup
       startupMiddlewares.call(this);
