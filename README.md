@@ -1,16 +1,16 @@
 # Falcon Boilerplate
 
-Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently.
+Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently. This REST API server boilerplate is built upon a powerful stack of technologies, including Express.js, Socket.io, and Prisma with postgresql, to provide a comprehensive solution for web service development and database management.
 
 ## Getting Started
 
 Follow these steps to get started with Falcon Boilerplate:
 
-1. **Folder Renaming**: Start by renaming the `demo_ssl` folder to `ssl` and `demo_settings` to `settings`. This step ensures that your SSL certificates and application settings are correctly set up.
+1. **Folder Renaming**: <br> Start by renaming the `demo_ssl` folder to `ssl` and `demo_settings` to `settings`. This step ensures that your SSL certificates and application settings are correctly set up.
 
-2. **Configuration**: Configure your application settings in the `settings/dev.js` file for development and `settings/prod.js` for production. Ensure that you specify the necessary configurations for your project, such as API keys, and other environment-specific settings.
+2. **Configuration**: <br> Configure your application settings in the `settings/dev.js` file for development and `settings/prod.js` for production. Ensure that you specify the necessary configurations for your project, such as API keys, and other environment-specific settings.
 
-3. **Install Dependencies**: Run the following command to install project dependencies:
+3. **Install Dependencies**: <br> Run the following command to install project dependencies:
 
     ```bash
     npm install
@@ -18,7 +18,7 @@ Follow these steps to get started with Falcon Boilerplate:
     yarn install
     ```
 
-4. **Database Setup**: For database management, make sure you have Docker Engine and Docker Compose installed. Update the username and password inside the `compose.yml` file to match your database credentials. Then, start the PostgreSQL database with Docker Compose:
+4. **Database Setup**: <br> For database management, you can install postgresql server in your system or you can use the `compose.yml` file in the boilerplate for running a postgresql server with docker. Make sure you have Docker Engine and Docker Compose installed. Update the username and password inside the `compose.yml` file to match your database credentials. Then, start the PostgreSQL database with Docker Compose:
 
     ```bash
     docker-compose up -d
@@ -30,7 +30,7 @@ Follow these steps to get started with Falcon Boilerplate:
     docker ps
     ```
 
-5. **Prisma Migration**: To create and apply Prisma database migrations, run one of the following commands:
+5. **Prisma Migration**: <br> To create and apply Prisma database migrations, run one of the following commands:
 
     Using npm:
 
@@ -46,8 +46,106 @@ Follow these steps to get started with Falcon Boilerplate:
 
     This will ensure that your database schema is up to date with your application's models.
 
-6. **Start the Server**: Start the server using nodemon to enable hot-reloading during development:
+6. **Start the Server**: <br> Start the server using nodemon to enable hot-reloading during development:
 
     ```bash
     yarn dev
     ```
+
+## Creating Services
+Follow these steps to create a new service:
+
+1. **Create the service root file**: <br> Start by organizing your services within the `services` directory. Each service should have its own dedicated folder and a corresponding file for the service entry points.<br>
+Example:
+    ```plaintext
+    - services
+      | - user
+        | - user.js
+    ```
+2. **Code snippets**: <br> If you are using vs code. Then there is two vs code snippets to generate the service and entity code with basic crud operation.
+    | Trigger | Content                      |
+    | ------: | ---------------------------- |
+    |   `service` | `service code with basic crud api routes and socket function.` |
+    |   `entity` | `entity for the basic crud apies.`  |
+
+3. **Create the api routes and register socket listeners in the service root file**: <br>
+Service Root File (e.g., user.js):
+    ```javascript
+    const { create, handleClickButton } = require('./user.entity');
+
+    /**
+     * INSTRUCTIONS:
+     * 1. Call API and socket handler functions from entity file (e.g., user.entity.js).
+     */
+
+    /**
+     * Define API routes for user management.
+     */
+    function api() {
+
+      /**
+       * POST /user
+       * @description This route is used to create a user.
+       * @response {Object} 201 - The new user.
+       * @body {Object} - The data to create a user.
+      */
+      this.router.post('/user', create(this));
+    }
+
+    /**
+     * Register event handlers for user-related events.
+     */
+    function socket() {
+          this.socket.on('clickedButton', handleClickButton(this));
+    }
+
+    module.exports = { api, socket };
+    ```
+
+4. **Create entity functions and use them on the service file**: <br>
+Entity File (e.g., user.entity.js):
+    ```javascript
+    const TABLE_NAME = 'user';
+
+    module.exports.create = ({ db }) => async (req, res, next) => {
+      try {
+        const user = await db.create({ table: TABLE_NAME, payload: { data: req.body } });
+        return res.status(201).send(user);
+      } catch (e) { next(e) }
+    };
+
+    module.exports.handleClickButton = async ({ db }) => {
+      // Implement the functionality you need.
+    }
+    ```
+
+## Inject the service in the app
+Lastly For making the service available for your clients you have to inject that in the app.<br>
+Follow these steps:
+
+1. **Inject api service**: <br>
+    ```diff
+    const { errorMiddleware } = require("./middlewares");
+    + const user = require("./user/user");
+
+    function apiServices() {
+    + user.api.call(this);
+      this.router.use(errorMiddleware(this))
+    };
+    ```
+
+2. **Inject socket service**: <br>
+    ```diff
+    const { errorMiddleware } = require("./middlewares");
+    +const user = require("./user/user");
+
+    function apiServices() {
+      user.api.call(this);
+      this.router.use(errorMiddleware(this))
+    };
+
+    function socketServices() {
+    +  user.socket.call(this);
+    };
+    ```
+    As simple as that. Your services are good to go now.
