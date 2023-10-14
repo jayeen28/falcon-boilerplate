@@ -62,7 +62,7 @@ Example:
       | - user
         | - user.js
     ```
-2. **Code snippets**: <br> If you are using vs code. Then there is two vs code snippets to generate the service and entity code with basic crud operation.
+2. **Generate service and entity with vs code snippets**: <br> If you are using vs code. Then there is two vs code snippets to generate the service and entity code with basic crud operation. If you follow this step then you don't need to follow step number 3 and 4.
     | Trigger | Content                      |
     | ------: | ---------------------------- |
     |   `service` | `service code with basic crud api routes and socket function.` |
