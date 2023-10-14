@@ -55,12 +55,13 @@ Follow these steps to get started with Falcon Boilerplate:
 ## Creating Services
 Follow these steps to create a new service:
 
-1. **Create the service root file**: <br> Start by organizing your services within the `services` directory. Each service should have its own dedicated folder and a corresponding file for the service entry points.<br>
+1. **Create the service root file**: <br> Start by organizing your services within the `services` directory. Each service should have its own dedicated folder and a corresponding file for the service entry points also a single or multiple entity file for building the core logic.<br>
 Example:
     ```plaintext
     - services
       | - user
         | - user.js
+        | - user.entity.js
     ```
 2. **Generate service and entity with vs code snippets**: <br> If you are using vs code. Then there is two vs code snippets to generate the service and entity code with basic crud operation. If you follow this step then you don't need to follow step number 3 and 4.
     | Trigger | Content                      |
@@ -102,7 +103,7 @@ Service Root File (e.g., user.js):
     module.exports = { api, socket };
     ```
 
-4. **Create entity functions and use them on the service file**: <br>
+4. **Create entity functions**: <br>
 Entity File (e.g., user.entity.js):
     ```javascript
     const TABLE_NAME = 'user';
