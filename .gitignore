@@ -9,3 +9,4 @@ prismadb
 migrations
 files
 apiError.log
+prismapostgres

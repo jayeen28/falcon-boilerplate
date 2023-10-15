@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./prismapostgres:/var/lib/postgresql/data
+      - ./prismapostgres:/var/lib/postgresql/data #when changing this if the folder stays in the project please add this in gitignore
 volumes:
   postgres:
     driver: local
