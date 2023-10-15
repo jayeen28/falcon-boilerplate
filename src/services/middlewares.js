@@ -14,8 +14,8 @@ function errorMiddleware({ apiErrorPath }) {
       `${err.stack}\n`;
 
     // Read the existing content of the file
-    fs.readFile(apiErrorPath, 'utf8', (fileErr, data) => {
-      if (fileErr) {
+    fs.readFile(apiErrorPath, 'utf8', (fileErr, data = '') => {
+      if (fileErr && fileErr.code !== 'ENOENT') {
         console.error('Error reading api error file:', fileErr);
       } else {
         // Prepend the new log message to the existing content
