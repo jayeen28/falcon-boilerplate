@@ -153,10 +153,10 @@ Follow these steps:
 1. **Inject api service**: <br>
     ```diff
     const { errorMiddleware } = require("./middlewares");
-    + const user = require("./user/user");
+    +const { userApi } = require("./user/user");
 
     function apiServices() {
-    + user.api.call(this);
+    + userApi.call(this);
       this.router.use(errorMiddleware(this))
     };
     ```
@@ -164,15 +164,15 @@ Follow these steps:
 2. **Inject socket service**: <br>
     ```diff
     const { errorMiddleware } = require("./middlewares");
-    +const user = require("./user/user");
+    +const { userApi, userSocket } = require("./user/user");
 
     function apiServices() {
-      user.api.call(this);
+      userApi.call(this);
       this.router.use(errorMiddleware(this))
     };
 
     function socketServices() {
-    +  user.socket.call(this);
+    +  userSocket.call(this);
     };
     ```
     As simple as that. Your services are good to go now.
