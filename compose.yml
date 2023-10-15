@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=jayeen
+      - POSTGRES_PASSWORD=6783
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./prismapostgres:/var/lib/postgresql/data
+volumes:
+  postgres:
+    driver: local
