@@ -1,14 +1,14 @@
 # Falcon Boilerplate
 
-Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently. This REST API server boilerplate is built upon a powerful stack of technologies, including Express.js, Socket.io, and Prisma with postgresql, to provide a comprehensive solution for web service development and database management.
+Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently. This REST API server boilerplate is built upon a powerful stack of technologies, including Express.js, Socket.io, and Prisma with postgresql, to provide a comprehensive solution for web service development and database management. You can work faster like a falcon by using this template.
 
 ## Getting Started
 
 Follow these steps to get started with Falcon Boilerplate:
 
-1. **Folder Renaming**: <br> Start by renaming the `demo_ssl` folder to `ssl` and `demo_settings` to `settings`. This step ensures that your SSL certificates and application settings are correctly set up.
+1. **Folder Renaming**: <br> Start by renaming the `demo_ssl` folder to `ssl` and `demo_settings` to `settings`.
 
-2. **Configuration**: <br> Configure your application settings in the `settings/dev.js` file for development and `settings/prod.js` for production. Ensure that you specify the necessary configurations for your project, such as API keys, and other environment-specific settings.
+2. **Configuration**: <br> Configure your application settings in the `settings/dev.js` file for development and `settings/prod.js` for production. You will get the settings inside every request and socket events. The settings used will be determined by the NODE_ENV variable inside the index.js file at the root.
 
 3. **Install Dependencies**: <br> Run the following command to install project dependencies:
 
@@ -21,13 +21,17 @@ Follow these steps to get started with Falcon Boilerplate:
 4. **Database Setup**: <br> For database management, you can install postgresql server in your system or you can use the `compose.yml` file in the boilerplate for running a postgresql server with docker. Make sure you have Docker Engine and Docker Compose installed. Update the username and password inside the `compose.yml` file to match your database credentials. Then, start the PostgreSQL database with Docker Compose:
 
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
     You can verify that the database container is running by executing:
 
     ```bash
     docker ps
+    ```
+    Then place the database url in a `.env` file at the root.
+    ```env
+    DB_URL="postgresql://username:password@localhost:5432/student-tutor?schema=public"
     ```
 
 5. **Prisma Migration**: <br> To create and apply Prisma database migrations, run one of the following commands:
@@ -119,6 +123,7 @@ Entity File (e.g., user.entity.js):
       // Implement the functionality you need.
     }
     ```
+    `Note: In this boilerplate, all functions are connected to the Falcon class. This gives you access to various features, like I have accessed the db above. It also allows you to easily add new tools and functionalities to the Falcon class and access them globally.`
 
 ## Inject the service in the app
 Lastly For making the service available for your clients you have to inject that in the app.<br>
