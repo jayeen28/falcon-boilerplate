@@ -17,6 +17,7 @@ Falcon Boilerplate is a service-based Node.js backend boilerplate that will help
   - [Create entity functions](#create-entity-functions)
   - [Inject the service in the app](#inject-the-service-in-the-app)
 
+- [Handling Api Error](#handling-api-error)
 - [Serving Client](#serving-client)
 
 
@@ -176,6 +177,17 @@ Follow these steps:
     };
     ```
     As simple as that. Your services are good to go now.
+
+## Handling Api Error
+In the entity, if you invoke the `next` function of express with an `Error` instance as its first parameter, the `errorMiddleware` function will be triggered. The error will be permanently logged in the `./apiError.log` file, and the client will receive a 500 response.
+```javascript
+module.exports.create = ({ db }) => async (req, res, next) => {
+  try {
+    const user = await db.create({ table: TABLE_NAME, payload: { data: req.body } });
+    return res.status(201).send(user);
+  } catch (e) { next(e) }
+};
+```
 
 ## Serving client
 You can place your client code inside the `client` folder. The Falcon boilerplate will search for the `index.html` file to serve the client.
