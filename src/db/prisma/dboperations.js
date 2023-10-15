@@ -163,7 +163,7 @@ function update({ table, payload: { id, data, where = {}, ...rest } }) {
  * @returns {Promise<Object>} The updated record after soft deletion.
  */
 function softDelete({ table, payload: { id } }) {
-  if (!hasVisibleField(table)) throw new Error('No visiable field inside schema');
+  if (!hasVisibleField(table)) throw new Error('Light delete requires a visible field on schema. No visiable field inside schema');
   return prisma[table].update({
     where: { id, visible: true },
     data: { visible: false },
