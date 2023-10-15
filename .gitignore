@@ -4,7 +4,6 @@ package-lock.json
 config
 settings
 ssl
-compose.yml
 .env
 prismadb
 migrations
