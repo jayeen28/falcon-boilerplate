@@ -25,7 +25,7 @@ Falcon Boilerplate is a service-based Node.js backend boilerplate that will help
 Follow these steps to get started with Falcon Boilerplate:
 
 
-1. <a id="folder-renaming">Folder Renaming:</a> <br> Start by renaming the `demo_ssl` folder to `ssl` and `demo_settings` to `settings`.
+1. <a id="folder-renaming">**Folder Renaming:**</a> <br> Start by renaming the `demo_ssl` folder to `ssl` and `demo_settings` to `settings`.
 
 1. <a id="configuration">Configuration:</a> <br> Configure your application settings in the `settings/dev.js` file for development and `settings/prod.js` for production. You will get the settings inside every request and socket events. The settings used will be determined by the NODE_ENV variable inside the index.js file at the root.
 
