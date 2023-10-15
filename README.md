@@ -107,7 +107,7 @@ Service Root File (e.g., user.js):
     /**
      * Define API routes for user management.
      */
-    function api() {
+    function userApi() {
 
       /**
        * POST /user
@@ -121,11 +121,11 @@ Service Root File (e.g., user.js):
     /**
      * Register event handlers for user-related events.
      */
-    function socket() {
+    function userSocket() {
           this.socket.on('clickedButton', handleClickButton(this));
     }
 
-    module.exports = { api, socket };
+    module.exports = { userApi, userSocket };
     ```
 
 1. <a id="create-entity-functions">**Create entity functions**</a> <br>
