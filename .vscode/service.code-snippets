@@ -13,7 +13,7 @@
       "/**",
       " * Define API routes for ${1/([A-Z][a-z]+)/${1:/camelcase}/} management.",
       " */"
-      "function api() {",
+      "function ${1/([A-Z][a-z]+)/${1:/camelcase}/}Api() {",
       "",
       "  /**",
       "   * POST /${1/([A-Z][a-z]+)/${1:/camelcase}/}",
@@ -57,12 +57,12 @@
       "/**",
       " * Register event handlers for ${1/([A-Z][a-z]+)/${1:/camelcase}/} related events.",
       " */"
-      "function socket() {",
+      "function ${1/([A-Z][a-z]+)/${1:/camelcase}/}Socket() {",
       "",
       "  // this.socket.on('demo', demoHandlerFromEntity(this));",
       "}",
       "",
-      "module.exports = { api, socket };"
+      "module.exports = { ${1/([A-Z][a-z]+)/${1:/camelcase}/}Api, ${1/([A-Z][a-z]+)/${1:/camelcase}/}Socket };"
     ],
     "description": "Creates route and socket boilerplate with coder instructions"
   }
