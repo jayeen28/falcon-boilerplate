@@ -31,7 +31,7 @@ Follow these steps to get started with Falcon Boilerplate:
     ```
     Then place the database url in a `.env` file at the root.
     ```env
-    DB_URL="postgresql://username:password@localhost:5432/student-tutor?schema=public"
+    DB_URL="postgresql://username:password@localhost:5432/databasename?schema=public"
     ```
 
 5. **Prisma Migration**: <br> To create and apply Prisma database migrations, run one of the following commands:
