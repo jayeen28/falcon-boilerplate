@@ -1,7 +1,9 @@
 {
-  "name": "falcon-rider",
+  "name": "falcon-boilerplate",
   "version": "1.0.0",
   "main": "index.js",
+  "repository": "https://github.com/jayeen28/falcon-boilerplate",
+  "author": "MD. Jayeen Bin Alam <md.jayeen@gmail.com>",
   "license": "MIT",
   "prisma": {
     "schema": "src/db/prisma/schema.prisma"
@@ -10,7 +12,8 @@
     "prod": "node index.js",
     "dev": "nodemon index.js",
     "deploy": "",
-    "prisma": "npx prisma migrate dev"
+    "prisma": "npx prisma migrate dev",
+    "pstudio": "npx prisma studio"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
