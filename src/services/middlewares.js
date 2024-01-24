@@ -3,12 +3,11 @@ const fs = require('fs');
 function errorMiddleware({ apiErrorPath }) {
   return (err, req, res, next) => {
     // Extract relevant request information
-    const { method, originalUrl, params, query, body } = req;
+    const { method, originalUrl, query, body } = req;
 
     // Log the error and request details to a file
     const logMessage = `\n${new Date().toISOString()} - ${err.message}\n` +
       `Route: ${method} ${originalUrl}\n` +
-      `Params: ${JSON.stringify(params)}\n` +
       `Query: ${JSON.stringify(query)}\n` +
       `Body: ${JSON.stringify(body)}\n` +
       `${err.stack}\n`;
