@@ -1,12 +1,15 @@
 const fs = require('fs');
+import { v4 as uuidv4 } from 'uuid';
 
 function errorMiddleware({ apiErrorPath }) {
   return (err, req, res, next) => {
+    //reference id
+    const reference = uuidv4();
+
     // Extract relevant request information
     const { method, originalUrl, query, body } = req;
-
     // Log the error and request details to a file
-    const logMessage = `\n${new Date().toISOString()} - ${err.message}\n` +
+    const logMessage = `\n${new Date().toISOString()} - ${reference} -${err.message}\n` +
       `Route: ${method} ${originalUrl}\n` +
       `Query: ${JSON.stringify(query)}\n` +
       `Body: ${JSON.stringify(body)}\n` +
@@ -30,7 +33,7 @@ function errorMiddleware({ apiErrorPath }) {
     });
 
     // Send a generic error response to the client
-    return res.status(500).send({ message: 'Something went wrong' });
+    return res.status(500).send({ message: 'Something went wrong', reference });
   };
 }
 
