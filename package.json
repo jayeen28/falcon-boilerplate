@@ -9,8 +9,8 @@
     "schema": "src/db/prisma/schema.prisma"
   },
   "scripts": {
-    "prod": "node index.js",
-    "dev": "nodemon index.js",
+    "prod": "node dist/index.js",
+    "dev": "nodemon index.ts",
     "build": "npx tsc",
     "deploy": "",
     "prisma": "npx prisma migrate dev",
