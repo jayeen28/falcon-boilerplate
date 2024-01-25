@@ -2,25 +2,41 @@
  * Represents the API server configuration and initialization.
  * @class
  */
-const protocol = require(process.env.NODE_ENV === 'production' ? 'https' : 'http');
-const path = require('path');
-const fs = require('fs');
-const services = require('./services');
-const dboperations = require('./db/prisma/dboperations');
-const fileCtrl = require('./controllers/fileCtrl');
-const { Server } = require('socket.io');
-const startupMiddlewares = require('./startupMiddlewares');
-const EventEmitter = require('events');
-const hooks = require('./hooks');
+import EventEmitter from 'events';
+import fs from 'fs';
+import http from 'http';
+import https from 'https';
+import path from 'path';
+import { Server, Socket } from 'socket.io';
+import * as fileCtrl from './controllers/fileCtrl';
+// import { FileCtrl } from './controllers/fileCtrl';
+import dboperations from './db/prisma/dboperations';
+import hooks from './hooks';
+import services from './services';
+import startupMiddlewares from './startupMiddlewares';
+import express, { Express, Router } from 'express';
 
-module.exports = class Falcon {
+const protocol: any = process.env.NODE_ENV === 'production' ? https : http;
+
+export default class Falcon {
+  app: Express;
+  express: typeof express;
+  router: Router;
+  appPath: string;
+  config: any;
+  apiErrorPath: string;
+  db: any;
+  fileCtrl: fileCtrl.FileCtrl;
+  emitter: EventEmitter;
+  server?: http.Server | https.Server;
+  io?: Server;
   /**
    * Create an instance of the Api class.
    * @constructor
    * @param {object} _settings - Configuration settings for the API.
    * @param {object} _express - Express.js instance.
    */
-  constructor(_settings, _express) {
+  constructor(_settings: any, _express: typeof express) {
     /**
      * The Express.js instance.
      * @member {object}
@@ -37,11 +53,11 @@ module.exports = class Falcon {
      * The Express.js router instance.
      * @member {object}
      */
-    this.router = new this.express.Router();
+    this.router = this.express.Router();
 
     /**
      * The absolute path to the application.
-     * @member {string}
+     * @type {string}
      */
     this.appPath = path.resolve();
 
@@ -86,12 +102,15 @@ module.exports = class Falcon {
       /**
        * Create an HTTP or HTTPS server based on the environment.
        */
-      this.server = protocol.createServer({
-        ...process.env.NODE_ENV === 'production' && {
+      let serverOptions: any;
+
+      if (process.env.NODE_ENV === 'production') {
+        serverOptions = {
           key: fs.readFileSync(path.join(this.appPath, 'ssl', 'key.key')),
           cert: fs.readFileSync(path.join(this.appPath, 'ssl', 'cert.crt')),
-        }
-      }, this.app);
+        } as https.ServerOptions;
+      }
+      this.server = protocol.createServer(serverOptions, this.app);
 
       this.io = new Server(this.server, {
         cors: {
@@ -135,14 +154,14 @@ module.exports = class Falcon {
      * otherwise, the default port 4000 will be used.
      * A log message is printed to the console to indicate that the server is running.
      */
-    this.server.listen(this.config.port || 4000, () => console.info(`Server is up on port ${this.config.port}`));
+    this.server?.listen(this.config.port || 4000, () => console.info(`Server is up on port ${this.config.port}`));
 
     /**
      * Register socket services for every connection.
      * This allows Socket.IO-based services to be available to clients
      * as soon as they connect to the server.
      */
-    this.io.on('connection', (socket) => {
+    this.io?.on('connection', (socket) => {
       console.log(`Connected with socket. ID: ${socket.id}`);
       services.socketServices.call({ ...this, socket });
       socket.on('disconnect', () => console.log(`Disconnected from socket. ID: ${socket.id}`))

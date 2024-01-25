@@ -10,3 +10,4 @@ migrations
 files
 apiError.log
 prismapostgres
+dist

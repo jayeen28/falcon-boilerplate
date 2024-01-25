@@ -2,22 +2,22 @@
  * Module for managing files, including saving, appending, checking existence, and removing.
  * @module FileController
  */
-const fs = require('fs');
-const path = require('path');
-const { randomBytes } = require('crypto');
+import { randomBytes } from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 
 /**
  * Array of allowed file extensions for downloaded files.
  * @constant {string[]}
  */
-const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'svg', 'gif', 'avif', 'webp'];
+export const ALLOWED_EXTENSIONS: string[] = ['png', 'jpg', 'jpeg', 'svg', 'gif', 'avif', 'webp'];
 
 /**
  * Directory where files are stored.
  * @constant {string}
  */
-const fileDir = path.join(path.resolve(), 'files');
+export const fileDir: string = path.join(path.resolve(), 'files');
 
 // Ensure the file directory exists, creating it if necessary.
 if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir, { recursive: true });
@@ -32,7 +32,7 @@ if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir, { recursive: true });
  * @throws {Error} - Throws an error if the provided link lacks a file extension, has an invalid file extension,
  * or if any other error occurs during the download and save process.
  */
-async function fileUp(link) {
+export function fileUp(link: string): string | null {
   if (!link) {
     return null;
   }
@@ -64,7 +64,7 @@ async function fileUp(link) {
  * @param {string} options.appendFlag - The append flag ('a' for append, 'w' for write).
  * @returns {Promise<boolean>} - A Promise that resolves to true if the chunk is written successfully, or false on error.
  */
-function writeChunk({ fileNametoSave, chunk, appendFlag }) {
+export function writeChunk({ fileNametoSave, chunk, appendFlag }: { fileNametoSave: string, chunk: string, appendFlag: string }): Promise<Error | boolean> {
   return new Promise((resolve, reject) => {
     fs.appendFile(path.join(fileDir, fileNametoSave), Buffer.from(chunk, 'base64'), { flag: appendFlag }, (err) => {
       if (err) {
@@ -83,7 +83,7 @@ function writeChunk({ fileNametoSave, chunk, appendFlag }) {
  * @returns {Promise<boolean>} - A Promise that resolves to true if all files exist, or false if any file is missing.
  * @throws {Error} - Throws an error if the files parameter is invalid or empty.
  */
-async function allFileExist(files) {
+export function allFileExist(files: { location: string }[]): boolean {
   if (!files?.length) {
     throw new Error('Invalid or empty file list.');
   }
@@ -101,7 +101,7 @@ async function allFileExist(files) {
  * @param {string} files[].location - The relative location of each file.
  * @returns {Promise<boolean>} - A Promise that resolves to true if all files are removed successfully, or false on error.
  */
-async function rmFiles(files) {
+export async function rmFiles(files: { location: string }[]): Promise<boolean> {
   try {
     await Promise.all(files.map(async ({ location }) => {
       const filePath = path.join(fileDir, location);
@@ -116,4 +116,11 @@ async function rmFiles(files) {
   }
 }
 
-module.exports = { rmFiles, allFileExist, fileUp, writeChunk, fileDir, ALLOWED_EXTENSIONS };
+export interface FileCtrl {
+  rmFiles: (files: { location: string }[]) => Promise<boolean>;
+  allFileExist: (files: { location: string }[]) => boolean;
+  fileUp: (link: string) => string | null;
+  writeChunk: ({ fileNametoSave, chunk, appendFlag }: { fileNametoSave: string, chunk: string, appendFlag: string }) => Promise<Error | boolean>;
+  fileDir: string;
+  ALLOWED_EXTENSIONS: string[];
+}
