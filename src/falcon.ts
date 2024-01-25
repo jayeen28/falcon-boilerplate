@@ -3,18 +3,17 @@
  * @class
  */
 import EventEmitter from 'events';
+import express, { Express, Router } from 'express';
 import fs from 'fs';
 import http from 'http';
 import https from 'https';
 import path from 'path';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import * as fileCtrl from './controllers/fileCtrl';
-// import { FileCtrl } from './controllers/fileCtrl';
 import dboperations from './db/prisma/dboperations';
 import hooks from './hooks';
 import services from './services';
 import startupMiddlewares from './startupMiddlewares';
-import express, { Express, Router } from 'express';
 
 const protocol: any = process.env.NODE_ENV === 'production' ? https : http;
 
