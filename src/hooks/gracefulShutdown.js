@@ -23,7 +23,7 @@ module.exports = function () {
   async function handleShutdownEvent(orgErr) {
     try {
       // Log the original error or event object.
-      console.log(orgErr);
+      console.log(`Process shutdown signal: ${orgErr}`);
 
       //****** Perform any necessary cleanup or finalization here. ******/
 
