@@ -6,6 +6,7 @@ settings
 ssl
 .env
 prismadb
+dist
 migrations
 files
 apiError.log
