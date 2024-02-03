@@ -10,7 +10,7 @@ import https from 'https';
 import path from 'path';
 import { Server } from 'socket.io';
 import * as fileCtrl from './controllers/fileCtrl';
-import dboperations from './db/prisma/dboperations';
+import * as dboperations from './db/prisma/dboperations';
 import hooks from './hooks';
 import services from './services';
 import startupMiddlewares from './startupMiddlewares';
@@ -24,7 +24,7 @@ export default class Falcon {
   appPath: string;
   config: any;
   apiErrorPath: string;
-  db: any;
+  db: dboperations.DB;
   fileCtrl: fileCtrl.FileCtrl;
   emitter: EventEmitter;
   server?: http.Server | https.Server;

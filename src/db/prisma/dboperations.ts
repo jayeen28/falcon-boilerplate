@@ -1,8 +1,8 @@
-const { PrismaClient, Prisma } = require('@prisma/client');
-const prisma = new PrismaClient();
+import { PrismaClient, Prisma } from "@prisma/client";
+const prisma: any = new PrismaClient();
 
 // Function to check if the table has the 'visible' field
-function hasVisibleField(table) {
+function hasVisibleField(table: string) {
   const model = Prisma.dmmf.datamodel.models.find((model) => model.name.toLocaleLowerCase() === table);
 
   if (model) {
@@ -12,7 +12,7 @@ function hasVisibleField(table) {
 }
 
 // Function to convert page and limit into skip and take values for pagination
-function convertToSkipAndTake(page, limit) {
+function convertToSkipAndTake(page: number, limit: number) {
   const take = limit;
   const skip = (page - 1) * limit;
 
@@ -30,7 +30,7 @@ function convertToSkipAndTake(page, limit) {
  * @returns {Promise<Array>|Promise<Object>} An array of records or a paginated result object.
  * @throws {Error} Throws an error if an exception occurs during the operation.
  */
-async function find({ table, payload = {} }) {
+async function find({ table, payload = {} }: { table: string, payload: any }) {
   try {
     // Destructure query parameters from the payload object
     let { query: { page, limit = 10, where = {}, orderBy }, select } = payload;
@@ -82,7 +82,7 @@ async function find({ table, payload = {} }) {
       hasPrevPage: page > 1,
       prevPage: page > 1 ? page - 1 : null,
     };
-  } catch (e) {
+  } catch (e: any) {
     // Catch and re-throw any errors that occur
     throw new Error(e);
   }
@@ -97,7 +97,7 @@ async function find({ table, payload = {} }) {
  * @param {Object} options.payload.query - Query parameters for filtering.
  * @returns {Promise<Object|null>} A single record or null if not found.
  */
-function findOne({ table, payload: { where = {}, ...rest } = {} }) {
+function findOne({ table, payload: { where = {}, ...rest } = {} }: { table: string, payload: any }) {
   if (hasVisibleField(table)) where.visible = true;
   return prisma[table].findUnique({
     where,
@@ -113,7 +113,7 @@ function findOne({ table, payload: { where = {}, ...rest } = {} }) {
  * @param {Object} options.payload - Payload containing data to insert.
  * @returns {Promise<Object>} The created record.
  */
-function create({ table, payload: { data, ...rest } }) {
+function create({ table, payload: { data, ...rest } }: { table: string, payload: any }) {
   return prisma[table].create({
     data,
     ...rest,
@@ -127,7 +127,7 @@ function create({ table, payload: { data, ...rest } }) {
  * @param {Array<Object>} docs - An array of objects to insert.
  * @returns {Promise<Array<Object>>} An array of created records.
  */
-function bulkCreate(table, docs) {
+function bulkCreate(table: string, docs: Array<Object>) {
   return prisma[table].createMany({
     docs,
     skipDuplicates: true,
@@ -142,7 +142,7 @@ function bulkCreate(table, docs) {
  * @param {Object} options.payload - Payload containing ID and data for the update.
  * @returns {Promise<Object>} The updated record.
  */
-function update({ table, payload: { id, data, where = {}, ...rest } }) {
+function update({ table, payload: { id, data, where = {}, ...rest } }: { table: string, payload: any }) {
   return prisma[table].update({
     where: {
       id,
@@ -162,7 +162,7 @@ function update({ table, payload: { id, data, where = {}, ...rest } }) {
  * @param {Object} options.payload - Payload containing ID for the soft delete.
  * @returns {Promise<Object>} The updated record after soft deletion.
  */
-function softDelete({ table, payload: { id } }) {
+function softDelete({ table, payload: { id } }: { table: string, payload: any }) {
   if (!hasVisibleField(table)) throw new Error('Light delete requires a visible field on schema. No visiable field inside schema');
   return prisma[table].update({
     where: { id, visible: true },
@@ -178,7 +178,7 @@ function softDelete({ table, payload: { id } }) {
  * @param {Object} options.payload - Payload containing ID for the restore.
  * @returns {Promise<Object>} The updated record after restore.
  */
-function restore({ table, payload: { id } }) {
+function restore({ table, payload: { id } }: { table: string, payload: any }) {
   if (!hasVisibleField(table)) throw new Error('No visiable field inside schema');
   return prisma[table].update({
     where: { id, visible: false },
@@ -194,12 +194,18 @@ function restore({ table, payload: { id } }) {
  * @param {Object} options.payload - Payload containing ID for the hard delete.
  * @returns {Promise<void>} Resolves when the deletion is successful.
  */
-function hardDelete({ table, payload: { id } }) {
+function hardDelete({ table, payload: { id } }: { table: string, payload: any }) {
   return prisma[table].delete({ where: { id } });
 }
 
+export const prismaError = Prisma.PrismaClientKnownRequestError;
+export const codes = {
+  'NOT_FOUND': 'P2025',
+  'DUPLICATE_FOUND': 'P2002',
+};
+
 // Export all the functions as part of a module
-module.exports = {
+export {
   find,
   findOne,
   create,
@@ -208,9 +214,20 @@ module.exports = {
   softDelete,
   restore,
   hardDelete,
-  prismaError: Prisma.PrismaClientKnownRequestError,
-  codes: {
-    'NOT_FOUND': 'P2025',
-    'DUPLICATE_FOUND': 'P2002',
-  }
 };
+
+export interface DB {
+  find(options: { table: string, payload: any }): Promise<Array<Object> | Object>;
+  findOne(options: { table: string, payload: any }): Promise<Object | null>;
+  create(options: { table: string, payload: any }): Promise<Object>;
+  bulkCreate(table: string, docs: Array<Object>): Promise<Array<Object>>;
+  update(options: { table: string, payload: any }): Promise<Object>;
+  softDelete(options: { table: string, payload: any }): Promise<Object>;
+  restore(options: { table: string, payload: any }): Promise<Object>;
+  hardDelete(options: { table: string, payload: any }): Promise<void>;
+  prismaError: typeof Prisma.PrismaClientKnownRequestError;
+  codes: {
+    NOT_FOUND: string;
+    DUPLICATE_FOUND: string;
+  };
+}
