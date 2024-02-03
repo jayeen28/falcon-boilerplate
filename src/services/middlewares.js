@@ -1,8 +1,11 @@
 const fs = require('fs');
-import { v4 as uuidv4 } from 'uuid';
+const { v4: uuidv4 } = require('uuid');
 
-function errorMiddleware({ apiErrorPath }) {
+function errorMiddleware({ apiErrorPath, config }) {
   return (err, req, res, next) => {
+    // Log the error if it is running on dev mode.
+    if (config.running === 'dev') console.log(err);
+
     //reference id
     const reference = uuidv4();
 
