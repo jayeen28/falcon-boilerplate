@@ -55,6 +55,8 @@ async function find({ table, payload = {} }) {
       };
     }
 
+    // The reason for this is some table may require soft delete feature.
+    // So if the table has visible field so it means I should only provide the documens which has visiable value true.
     if (hasVisibleField(table)) where.visible = true;
 
     // Fetch records and count total documents in parallel
