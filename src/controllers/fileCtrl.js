@@ -33,26 +33,31 @@ if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir, { recursive: true });
  * or if any other error occurs during the download and save process.
  */
 async function fileUp(link) {
-  if (!link) {
-    return null;
+  try {
+    if (!link) {
+      return null;
+    }
+
+    const extIndex = link.lastIndexOf('.');
+    if (extIndex === -1) {
+      throw new Error('Link does not contain a file extension.');
+    }
+
+    const ext = link.substring(extIndex + 1);
+    if (!ALLOWED_EXTENSIONS.includes(ext.toLowerCase())) {
+      throw new Error('Invalid file extension.');
+    }
+
+    const fileName = randomBytes(16).toString('hex') + '.' + ext;
+    const buffer = await fs.promises.readFile(link);
+    const filePath = path.join(fileDir, fileName);
+    await fs.promises.writeFile(filePath, buffer);
+
+    return fileName;
+  } catch (error) {
+    console.error('Error in fileUp:', error);
+    throw error;
   }
-
-  const extIndex = link.lastIndexOf('.');
-  if (extIndex === -1) {
-    throw new Error('Link does not contain a file extension.');
-  }
-
-  const ext = link.substring(extIndex + 1);
-  if (!ALLOWED_EXTENSIONS.includes(ext.toLowerCase())) {
-    throw new Error('Invalid file extension.');
-  }
-
-  const fileName = randomBytes(16).toString('hex') + '.' + ext;
-  const buffer = fs.readFileSync(link);
-  const filePath = path.join(fileDir, fileName);
-  fs.writeFileSync(filePath, buffer);
-
-  return fileName;
 }
 
 /**
