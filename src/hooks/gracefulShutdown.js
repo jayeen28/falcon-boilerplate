@@ -26,9 +26,10 @@ module.exports = function () {
       console.log(`Process shutdown signal: ${orgErr}`);
 
       //****** Perform any necessary cleanup or finalization here. ******/
+      this.server.close(() => {
+        console.log('Server closed');
+      });
 
-      // Exit the process gracefully.
-      process.exit(0);
     } catch (e) {
       console.error(e);
 
