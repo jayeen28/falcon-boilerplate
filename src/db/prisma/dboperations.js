@@ -33,10 +33,9 @@ function convertToSkipAndTake(page, limit) {
 async function find({ table, payload = {} }) {
   try {
     // Destructure query parameters from the payload object
-    let { query: { page, limit = 10, where = {}, orderBy }, select } = payload;
+    let { query: { page, limit = 10, where = {}, orderBy }, select, validateQuery = [] } = payload;
 
-    // Parse the 'where' JSON string if it's provided as a string
-    if (typeof where === 'string') where = JSON.parse(where);
+    if (validateQuery.length > 0 && Object.keys(where).some((key) => !validateQuery.includes(key))) throw new Error(`Invalid query. Allowed ${validateQuery.join(', ')}`);
 
     // Check if pagination is requested
     const paginate = Boolean(page);
@@ -55,7 +54,9 @@ async function find({ table, payload = {} }) {
         [parts[0]]: parts[1],
       };
     }
+
     if (hasVisibleField(table)) where.visible = true;
+
     // Fetch records and count total documents in parallel
     const [result, totalDocs] = await Promise.all([
       prisma[table].findMany({
@@ -84,7 +85,7 @@ async function find({ table, payload = {} }) {
     };
   } catch (e) {
     // Catch and re-throw any errors that occur
-    throw new Error(e);
+    throw e;
   }
 }
 
