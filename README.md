@@ -19,6 +19,7 @@ Falcon Boilerplate is a service-based Node.js backend boilerplate that will help
 
 - [Handling Api Error](#handling-api-error)
 - [Serving Client](#serving-client)
+- [Docker](#docker)
 
 
 ## Getting Started
@@ -191,3 +192,7 @@ module.exports.create = ({ db }) => async (req, res, next) => {
 
 ## Serving client
 You can place your client code inside the `client` folder. The Falcon boilerplate will search for the `index.html` file to serve the client.
+
+## Docker
+I have provided the Dockerfile to build the backend image. You can customize that as you need.
+Also I have provided a working docker compose file for running the backend and postgres service. They will be on custom network named `falcon`. You have to create that network or you can use your own network name.

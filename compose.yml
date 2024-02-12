@@ -1,16 +1,45 @@
 version: "3"
 
+networks:
+  network1:
+    name: falcon # if you created another network using different name then replace this with the network name.
+    external: true
+
 services:
   postgres:
     image: postgres
     restart: always
+    networks:
+      - network1
     environment:
       - POSTGRES_USER=jayeen
       - POSTGRES_PASSWORD=6783
-    ports:
-      - "5432:5432"
+    # ports:
+    #   - "5432:5432" # don't need ports because I am using my custom network
     volumes:
-      - ./prismapostgres:/var/lib/postgresql/data #when changing this if the folder stays in the project please add this in gitignore
+      - ./data/prismapostgres:/var/lib/postgresql/data #when changing this if the folder stays in the project please add this in gitignore
+
+  falcon:
+    image: falcon
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    restart: always
+    networks:
+      - network1
+    ports:
+      - 4000:4000
+    environment:
+      - DB_URL=postgresql://jayeen:6783@postgres:5432/falcon?schema=public
+      - NODE_ENV=development # change this if you want to run in dev mode.
+    command: npm run docker
+    volumes:
+      - ./data:/falcon/data:rw
+
 volumes:
   postgres:
+    driver: local
+  falcon:
     driver: local

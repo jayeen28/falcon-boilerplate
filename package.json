@@ -11,6 +11,7 @@
   "scripts": {
     "prod": "node index.js",
     "dev": "nodemon index.js",
+    "docker": "npm run prisma -y && node index.js",
     "deploy": "",
     "prisma": "npx prisma migrate dev",
     "pstudio": "npx prisma studio"

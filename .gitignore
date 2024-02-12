@@ -1,13 +1,10 @@
 node_modules
 yarn.lock
 package-lock.json
-config
 settings
 ssl
 .env
 prismadb
 dist
 migrations
-files
-apiError.log
-prismapostgres
+data
