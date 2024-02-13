@@ -5,10 +5,13 @@ Falcon Boilerplate is a service-based Node.js backend boilerplate that will help
 - [Getting Started](#getting-started)
   - [Folder Renaming](#folder-renaming)
   - [Configuration](#configuration)
-  - [Install Dependencies](#install-dependencies)
-  - [Database Setup](#database-setup)
-  - [Prisma Migration](#prisma-migration)
-  - [Start the Server](#start-the-server)
+  - | With docker    | Without docker   |
+    | :---: | :---: |
+    | [Docker](#docker)   | [Install Dependencies](#install-dependencies)   |
+    || [Database Setup](#database-setup)   |
+    || [Prisma Migration](#prisma-migration)   |
+    || [Start the Server](#start-the-server)   |
+
 
 - [Creating Services](#creating-services)
   - [Create the service root file](#create-the-service-root-file)
@@ -19,7 +22,6 @@ Falcon Boilerplate is a service-based Node.js backend boilerplate that will help
 
 - [Handling Api Error](#handling-api-error)
 - [Serving Client](#serving-client)
-- [Docker](#docker)
 
 
 ## Getting Started
@@ -50,7 +52,7 @@ Follow these steps to get started with Falcon Boilerplate:
     ```bash
     docker ps
     ```
-    Then place the database url in a `.env` file at the root.
+    Then place the database url in a `.env` file at the root. If using docker then it will be inside compose files.
     ```env
     DB_URL="postgresql://username:password@localhost:5432/databasename?schema=public"
     ```
@@ -194,5 +196,27 @@ module.exports.create = ({ db }) => async (req, res, next) => {
 You can place your client code inside the `client` folder. The Falcon boilerplate will search for the `index.html` file to serve the client.
 
 ## Docker
-I have provided the Dockerfile to build the backend image. You can customize that as you need.
-Also I have provided a working docker compose file for running the backend and postgres service. They will be on custom network named `falcon`. You have to create that network or you can use your own network name.
+
+```bash
+# Creating bridge type network (if not already exists)
+# The database and the api will be in this network.
+docker network create -d bridge falcon
+```
+
+Two Docker Compose files are provided:
+
+- `compose_dev.yml`: For development mode.
+- `compose.yml`: For production mode.
+
+```bash
+# Running in Development Mode
+docker compose -f compose_dev.yml up
+
+# Rebuilding API Image (if needed)
+docker compose -f compose_dev.yml up --build
+```
+
+```bash
+# Running in Production Mode
+docker compose up -d
+```
