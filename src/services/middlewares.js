@@ -1,8 +1,13 @@
 const fs = require('fs');
+const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const dayMonthYear = require('../utils/dayMonthYear');
 
-function errorMiddleware({ apiErrorPath, config }) {
+function errorMiddleware({ dataPath, config }) {
   return (err, req, res, next) => {
+    const apiErrorPath = path.join(dataPath, 'server_error', ...dayMonthYear().map((n) => n.toString()));
+    if (!fs.existsSync(apiErrorPath)) fs.mkdirSync(apiErrorPath, { recursive: true });
+
     // Log the error if it is running on dev mode.
     if (config.running === 'dev') console.log(err);
 
