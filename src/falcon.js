@@ -58,12 +58,6 @@ module.exports = class Falcon {
     this.config = _settings;
 
     /**
-     * The absolute path for saving api error logs.
-     * @member {string}
-     */
-    this.apiErrorPath = path.join(this.dataPath, 'apiError.log');
-
-    /**
      * Database operations module.
      * @member {object}
      */
