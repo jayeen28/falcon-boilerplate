@@ -46,6 +46,12 @@ module.exports = class Falcon {
     this.appPath = path.resolve();
 
     /**
+     * It is used to store all the app states.
+     * @member {object}
+     */
+    this.dataPath = path.join(this.appPath, 'data');
+
+    /**
      * Configuration settings for the API.
      * @member {object}
      */
@@ -55,7 +61,7 @@ module.exports = class Falcon {
      * The absolute path for saving api error logs.
      * @member {string}
      */
-    this.apiErrorPath = path.join(this.appPath, 'apiError.log');
+    this.apiErrorPath = path.join(this.dataPath, 'apiError.log');
 
     /**
      * Database operations module.
@@ -83,6 +89,8 @@ module.exports = class Falcon {
    */
   wake() {
     try {
+      if (!fs.existsSync(this.dataPath)) fs.mkdirSync(this.dataPath, { recursive: true });
+
       /**
        * Create an HTTP or HTTPS server based on the environment.
        */
