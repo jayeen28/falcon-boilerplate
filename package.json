@@ -14,7 +14,7 @@
     "docker-prod": "npm run prisma -y && npm run prod",
     "docker-dev": "npm run prisma -y && npm run dev",
     "deploy": "",
-    "prisma": "npx prisma migrate dev",
+    "prisma": "npx prisma migrate dev --name falcon",
     "pstudio": "npx prisma studio"
   },
   "devDependencies": {
