@@ -182,7 +182,7 @@ Follow these steps:
     As simple as that. Your services are good to go now.
 
 ## Handling Api Error
-In the entity, if you invoke the `next` function of express with an `Error` instance as its first parameter, the `errorMiddleware` function will be triggered. The error will be permanently logged in the `./apiError.log` file, and the client will receive a 500 response.
+In the entity, if you invoke the `next` function of express with an `Error` instance as its first parameter, the `errorMiddleware` function will be triggered. The error will be permanently logged in the `data/server_error/{year}/{month}/{day}.log` file, and the client will receive a 500 response with a reference id. If reference id is not found in the response, it means the middleware failed to save the error. The error log can be found in the console.
 ```javascript
 module.exports.create = ({ db }) => async (req, res, next) => {
   try {
