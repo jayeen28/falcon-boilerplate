@@ -5,8 +5,10 @@ const dayMonthYear = require('../utils/dayMonthYear');
 
 function errorMiddleware({ dataPath, config }) {
   return (err, req, res, next) => {
-    const apiErrorPath = path.join(dataPath, 'server_error', ...dayMonthYear().map((n) => n.toString()));
-    if (!fs.existsSync(apiErrorPath)) fs.mkdirSync(apiErrorPath, { recursive: true });
+    const [year, month, day] = dayMonthYear().map((n) => n.toString());
+    const apiErrorDir = path.join(dataPath, 'server_error', year, month);
+    if (!fs.existsSync(apiErrorDir)) fs.mkdirSync(apiErrorDir, { recursive: true });
+    const apiErrorPath = path.join(apiErrorDir, `${day}.log`);
 
     // Log the error if it is running on dev mode.
     if (config.running === 'dev') console.log(err);
