@@ -21,7 +21,7 @@ function errorMiddleware({ dataPath, config }) {
     if (config.running === 'dev') console.log(err);
 
     // Generate unique reference ID
-    const reference = uuidv4();
+    const reference = `${uuidv4()}|${year}-${month}-${day}`;
 
     // Extract relevant request information
     const { method, originalUrl, query, body } = req;
