@@ -41,10 +41,10 @@ Follow these steps to get started with Falcon Boilerplate:
     yarn install
     ```
 
-1. <a id="database-setup">**Database Setup**</a> <br> For database management, you can install postgresql server in your system or you can use the `compose.yml` file in the boilerplate for running a postgresql server with docker. Make sure you have Docker Engine and Docker Compose installed. Update the username and password inside the `compose.yml` file to match your database credentials. Then, start the PostgreSQL database with Docker Compose:
+1. <a id="database-setup">**Database Setup**</a> <br> For database management, you can install postgresql server in your system or you can run the command below to start postgresql server in a docker container
 
     ```bash
-    docker compose up -d
+    docker run -d --name postgres -p 5432:5432 --restart always -e POSTGRES_USER=username -e POSTGRES_PASSWORD=password -v ./data/prismapostgres:/var/lib/postgresql/data postgres
     ```
 
     You can verify that the database container is running by executing:
