@@ -6,13 +6,13 @@ const dayMonthYear = require('../utils/dayMonthYear');
 
 // Middleware function to handle errors
 function errorMiddleware({ dataPath, config }) {
-  return (err, req, res, next) => {
+  return async (err, req, res, next) => {
     // Extract year, month, and day from current date
     const [year, month, day] = dayMonthYear().map((n) => n.toString());
 
     // Create directory for storing server error logs
     const apiErrorDir = path.join(dataPath, 'server_error', year, month);
-    if (!fs.existsSync(apiErrorDir)) fs.mkdirSync(apiErrorDir, { recursive: true });
+    if (!fs.existsSync(apiErrorDir)) await fs.mkdirAsync(apiErrorDir, { recursive: true });
 
     // Define path for error log file
     const apiErrorPath = path.join(apiErrorDir, `${day}.log`);
