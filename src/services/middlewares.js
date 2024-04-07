@@ -2,32 +2,39 @@
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const dayMonthYear = require('../utils/dayMonthYear');
+const localDateTimeParts = require('../utils/localDateTimeParts');
 
 // Middleware function to handle errors
-function errorMiddleware({ dataPath, config }) {
+module.exports.errorMiddleware = function errorMiddleware({ dataPath = path.resolve(), config }) {
+  // eslint-disable-next-line no-unused-vars
   return async (err, req, res, next) => {
     // Extract year, month, and day from current date
-    const [year, month, day] = dayMonthYear().map((n) => n.toString());
+    const [year, month, day, hours, minutes, seconds] = localDateTimeParts('Asia/Dhaka').map((n) => n.toString());
 
     // Create directory for storing server error logs
     const apiErrorDir = path.join(dataPath, 'server_error', year, month);
-    if (!fs.existsSync(apiErrorDir)) await fs.mkdirAsync(apiErrorDir, { recursive: true });
+
+    if (!fs.existsSync(apiErrorDir)) await new Promise((resolve, reject) => {
+      fs.mkdir(apiErrorDir, { recursive: true }, (err, res) => {
+        if (err) reject(err);
+        else resolve(res);
+      });
+    });
 
     // Define path for error log file
     const apiErrorPath = path.join(apiErrorDir, `${day}.log`);
 
     // Log the error if running in development mode
-    if (config.running === 'dev') console.log(err);
+    if (!config.isProduction) console.log(err);
 
     // Generate unique reference ID
-    const reference = `${uuidv4()}|${year}-${month}-${day}`;
+    const reference = `${uuidv4()}|${year}-${month}-${day}:${hours}:${minutes}:${seconds}`;
 
     // Extract relevant request information
     const { method, originalUrl, query, body } = req;
 
     // Construct log message
-    const logMessage = `\n${new Date().toISOString()} - ${reference} - ${err.message}\n` +
+    const logMessage = `\n${reference} - ${err.message}\n` +
       `Route: ${method} ${originalUrl}\n` +
       `Query: ${JSON.stringify(query)}\n` +
       `Body: ${JSON.stringify(body)}\n` +
@@ -58,9 +65,7 @@ function errorMiddleware({ dataPath, config }) {
       .catch((fileErr) => {
         res.status(500).send({ message: 'Something went wrong' });
         console.log(fileErr);
-        if (config.running === 'prod') console.log('Internal server error:\n', err);
+        if (config.isProduction) console.log('Internal server error:\n', err);
       });
   };
 }
-
-module.exports = { errorMiddleware };
