@@ -9,7 +9,7 @@
  * List of events that trigger a graceful shutdown of the application.
  * @constant {string[]}
  */
-const shutdownEvents = ['SIGTERM', 'SIGINT', 'unhandledRejection', 'SIGUSR2'];
+const shutdownEvents = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
 
 /**
  * Register event handlers for graceful shutdown.
