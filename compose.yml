@@ -20,7 +20,6 @@ services:
       - ./data/prismapostgres:/var/lib/postgresql/data #when changing this if the folder stays in the project please add this in gitignore
 
   falcon:
-    image: falcon
     build:
       context: .
       dockerfile: Dockerfile
