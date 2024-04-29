@@ -2,14 +2,14 @@
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-const localDateTimeParts = require('../utils/localDateTimeParts');
 
 // Middleware function to handle errors
-module.exports.errorMiddleware = function errorMiddleware({ dataPath = path.resolve(), config }) {
+module.exports.errorMiddleware = function errorMiddleware({ dataPath = path.resolve(), config, utils }) {
+
   // eslint-disable-next-line no-unused-vars
   return async (err, req, res, next) => {
     // Extract year, month, and day from current date
-    const [year, month, day, hours, minutes, seconds] = localDateTimeParts('Asia/Dhaka').map((n) => n.toString());
+    const [year, month, day, hours, minutes, seconds] = utils.localDateTimeParts('Asia/Dhaka').map((n) => n.toString());
 
     // Create directory for storing server error logs
     const apiErrorDir = path.join(dataPath, 'server_error', year, month);
@@ -28,7 +28,7 @@ module.exports.errorMiddleware = function errorMiddleware({ dataPath = path.reso
     if (!config.isProduction) console.log(err);
 
     // Generate unique reference ID
-    const reference = `${uuidv4()}|${year}-${month}-${day}:${hours}:${minutes}:${seconds}`;
+    const reference = `${uuidv4()}|${year}-${month}-${day}:T${hours}:${minutes}:${seconds}`;
 
     // Extract relevant request information
     const { method, originalUrl, query, body } = req;
@@ -67,5 +67,24 @@ module.exports.errorMiddleware = function errorMiddleware({ dataPath = path.reso
         console.log(fileErr);
         if (config.isProduction) console.log('Internal server error:\n', err);
       });
+  };
+}
+
+/**
+ * This function is used for validating user role.
+ * It is an express middleware.
+ * It checks that the role of the user is allowed to proceed the request or not.
+ * @param {Array} allowed The allowed roles.
+ * @throws {Error} If the role is not allowed then it throws an error.
+ */
+module.exports.checkRole = function checkRole(allowed) {
+  return async (req, res, next) => {
+    try {
+      if (allowed.includes(req.user.role)) return next();
+      else throw new Error('Unauthorized.');
+    }
+    catch (e) {
+      res.status(401).send({ status: 401, reason: 'unauthorized' });
+    }
   };
 }

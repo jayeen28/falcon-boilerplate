@@ -6,12 +6,12 @@ const protocol = require(process.env.NODE_ENV === 'production' ? 'https' : 'http
 const path = require('path');
 const fs = require('fs');
 const services = require('./services');
-const dboperations = require('./db/prisma/dboperations');
 const fileCtrl = require('./controllers/fileCtrl');
 const { Server } = require('socket.io');
 const startupMiddlewares = require('./startupMiddlewares');
 const EventEmitter = require('events');
 const hooks = require('./hooks');
+const injectUtils = require('./utils');
 
 module.exports = class Falcon {
   /**
@@ -19,8 +19,9 @@ module.exports = class Falcon {
    * @constructor
    * @param {object} _settings - Configuration settings for the API.
    * @param {object} _express - Express.js instance.
+   * @param {object} _db - Database instance.
    */
-  constructor(_settings, _express) {
+  constructor(_settings, _express, _db) {
     /**
      * The Express.js instance.
      * @member {object}
@@ -61,7 +62,7 @@ module.exports = class Falcon {
      * Database operations module.
      * @member {object}
      */
-    this.db = dboperations;
+    this.db = _db.promise();
 
     /**
      * Necessary file operations.
@@ -103,6 +104,9 @@ module.exports = class Falcon {
         }
       });
 
+      // Inject the utils
+      this.utils = injectUtils(this);
+
       // Call hooks setup
       hooks.call(this);
 
@@ -111,6 +115,7 @@ module.exports = class Falcon {
 
       // Call services setup
       services.apiServices.call(this);
+
       return true;
     }
     catch (e) {
@@ -122,7 +127,7 @@ module.exports = class Falcon {
   /**
    * Starts the server and handles incoming connections.
    */
-  fly() {
+  async fly() {
     /**
      * Handle GET requests by serving the client's index.html.
      * This ensures that the client-side application loads correctly.

@@ -6,12 +6,6 @@
  */
 
 /**
- * List of events that trigger a graceful shutdown of the application.
- * @constant {string[]}
- */
-const shutdownEvents = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
-
-/**
  * Register event handlers for graceful shutdown.
  */
 module.exports = function () {
@@ -26,10 +20,16 @@ module.exports = function () {
       console.log(`Process shutdown signal: ${orgErr}`);
 
       //****** Perform any necessary cleanup or finalization here. ******/
+      this.db.end(function (err) {
+        if (err) console.log(err);
+        else console.log('Database disconnected');
+      });
+
       this.server.close(() => {
         console.log('Server closed');
       });
 
+      this.emitter.removeAllListeners();
     } catch (e) {
       console.error(e);
 
@@ -37,7 +37,7 @@ module.exports = function () {
       process.exit(1);
     }
   }
-
-  // Register event handlers for graceful shutdown events.
-  shutdownEvents.forEach((e) => process.on(e, handleShutdownEvent.bind(this)));
+  process.on('SIGTERM', handleShutdownEvent.bind(this));
+  process.on('SIGINT', handleShutdownEvent.bind(this));
+  process.on('SIGUSR2', handleShutdownEvent.bind(this));
 };

@@ -6,39 +6,44 @@ networks:
     external: true
 
 services:
-  postgres:
-    image: postgres
+  db:
+    image: mysql
     restart: always
     networks:
       - network1
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
     # ports:
-    #   - "5432:5432" # don't need ports because I am using my custom network
+    #   - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 6783
     volumes:
-      - ./data/prismapostgres:/var/lib/postgresql/data #when changing this if the folder stays in the project please add this in gitignore
+      - ./data/mysqlDB:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h db --password=$$MYSQL_ROOT_PASSWORD
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 55
 
   falcon:
+    networks:
+      - network1
+    ports:
+      - 5000:4000
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - postgres
+      db:
+        condition: service_healthy
     restart: always
-    networks:
-      - network1
-    ports:
-      - 4000:4000
     environment:
-      - DB_URL=postgresql://user:password@postgres:5432/falcon?schema=public
-      - NODE_ENV=production # change this if you want to run in dev mode.
-    command: npm run docker-prod
+      - NODE_ENV=production
+    command: npm run prod
     volumes:
-      - ./data:/falcon/data:rw
+      - .:/falcon:rw
 
 volumes:
-  postgres:
+  db:
     driver: local
   falcon:
     driver: local

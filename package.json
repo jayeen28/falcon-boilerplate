@@ -5,29 +5,24 @@
   "repository": "https://github.com/jayeen28/falcon-boilerplate",
   "author": "MD. Jayeen Bin Alam <md.jayeen@gmail.com>",
   "license": "MIT",
-  "prisma": {
-    "schema": "src/db/prisma/schema.prisma"
-  },
   "scripts": {
-    "prod": "node index.js",
-    "dev": "nodemon index.js",
-    "docker-prod": "npm run prisma -y && npm run prod",
-    "docker-dev": "npm run prisma -y && npm run dev",
-    "deploy": "",
-    "prisma": "npx prisma migrate dev --name falcon",
-    "pstudio": "npx prisma studio"
+    "dev": "[ ! -d 'node_modules' ] && npm install; nodemon index.js",
+    "prod": "[ ! -d 'node_modules' ] && npm install; node index.js",
+    "deploy": ""
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
   "dependencies": {
-    "@prisma/client": "^5.3.1",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-rate-limit": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "mysql2": "^3.9.3",
     "socket.io": "^4.7.2",
     "uuid": "^9.0.1"
   }

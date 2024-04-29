@@ -1,44 +1,39 @@
 version: "3"
 
-networks:
-  network1:
-    name: falcon # if you created another network using different name then replace this with the network name.
-    external: true
-
 services:
-  postgres:
-    image: postgres
-    restart: always
-    networks:
-      - network1
+  db:
+    image: mysql
+    restart: on-failure
+    network_mode: host
     environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-    # ports:
-    #   - "5432:5432" # don't need ports because I am using my custom network
+      MYSQL_ROOT_PASSWORD: 6783
     volumes:
-      - ./data/prismapostgres:/var/lib/postgresql/data #when changing this if the folder stays in the project please add this in gitignore
+      - ./data/mysqlDB:/var/lib/mysql
+      - ./mysql_scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 --password=$$MYSQL_ROOT_PASSWORD
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 55
 
   falcon:
+    network_mode: host
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - postgres
-    restart: always
-    networks:
-      - network1
-    ports:
-      - 4000:4000
+      db:
+        condition: service_healthy
+    restart: on-failure
     environment:
-      - DB_URL=postgresql://user:password@postgres:5432/falcon?schema=public
       - NODE_ENV=development
-    command: npm run docker-dev
+    command: npm run dev
     volumes:
       - .:/falcon:rw
 
 volumes:
-  postgres:
+  db:
     driver: local
   falcon:
     driver: local
