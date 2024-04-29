@@ -1,6 +1,8 @@
 # Falcon Boilerplate
-
+<img src="https://i.ibb.co/sWqXfkz/Screenshot-from-2024-04-29-15-08-28.png" align="left" width="30%" style="margin-right: 10px"/>
 Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently. This REST API server boilerplate is built upon a powerful stack of technologies, including Express.js, Socket.io, and MySQL, to provide a comprehensive solution for web service development and database management. You can work faster like a falcon by using this template.
+<br clear="left"/>
+<br clear="left"/>
 
 - [Getting Started](#getting-started)
   - [Folder Renaming](#folder-renaming)
