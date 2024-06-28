@@ -1,6 +1,6 @@
 # Falcon Boilerplate
 <img src="https://i.ibb.co/sWqXfkz/Screenshot-from-2024-04-29-15-08-28.png" align="left" width="30%" style="margin-right: 10px"/>
-Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently. This REST API server boilerplate is built upon a powerful stack of technologies, including Express.js, Socket.io, and MySQL, to provide a comprehensive solution for web service development and database management. You can work faster like a falcon by using this template.
+Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently. This REST API server boilerplate is built upon a powerful stack of technologies, including Express.js, Socket.io, and Prisma with postgresql, to provide a comprehensive solution for web service development and database management. You can work faster like a falcon by using this template.
 <br clear="left"/>
 <br clear="left"/>
 
@@ -9,7 +9,9 @@ Falcon Boilerplate is a service-based Node.js backend boilerplate that will help
   - [Configuration](#configuration)
   - | With docker    | Without docker   |
     | :---: | :---: |
-    | [Docker](#docker)   | [Database Setup](#database-setup)   |
+    | [Docker](#docker)   | [Install Dependencies](#install-dependencies)   |
+    || [Database Setup](#database-setup)   |
+    || [Prisma Migration](#prisma-migration)   |
     || [Start the Server](#start-the-server)   |
 
 
@@ -33,7 +35,45 @@ Follow these steps to get started with Falcon Boilerplate:
 
 1. <a id="configuration">**Configuration:**</a> <br> Configure your application settings in the `settings/dev.js` file for development and `settings/prod.js` for production. You will get the settings inside every request and socket events. The settings used will be determined by the NODE_ENV variable inside the index.js file at the root.
 
-1. <a id="database-setup">**Database Setup**</a> <br> Install MySQL server on your system and configure the settings file to access the server.
+1. <a id="install-dependencies">**Install Dependencies**</a> <br> Run the following command to install project dependencies:
+
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
+
+1. <a id="database-setup">**Database Setup**</a> <br> For database management, you can install postgresql server in your system or you can run the command below to start postgresql server in a docker container
+
+    ```bash
+    docker run -d --name postgres -p 5432:5432 --restart always -e POSTGRES_USER=username -e POSTGRES_PASSWORD=password -v ./data/prismapostgres:/var/lib/postgresql/data postgres
+    ```
+
+    You can verify that the database container is running by executing:
+
+    ```bash
+    docker ps
+    ```
+    Then place the database url in a `.env` file at the root. If using docker then it will be inside compose files.
+    ```env
+    DB_URL="postgresql://username:password@localhost:5432/databasename?schema=public"
+    ```
+
+1. <a id="prisma-migration">**Prisma Migration**</a> <br> To create and apply Prisma database migrations, run one of the following commands:
+
+    Using npm:
+
+    ```bash
+    npx prisma migrate dev
+    ```
+
+    Or using yarn:
+
+    ```bash
+    yarn prisma
+    ```
+
+    This will ensure that your database schema is up to date with your application's models.
 
 1. <a id="start-the-server">**Start the Server**</a> <br> Start the server using nodemon to enable hot-reloading during development:
 
@@ -53,7 +93,7 @@ Example:
         | - user.entity.js
     ```
 
-1. <a id="generate-service-and-entity-with-vs-code-snippets">**Generate service and entity with vs code snippets**</a> <br> If you are using vs code. Then there is two vs code snippets to generate the service and entity code with basic crud wrapper functions. If you follow this step then you don't need to follow step number 3 and 4.
+1. <a id="generate-service-and-entity-with-vs-code-snippets">**Generate service and entity with vs code snippets**</a> <br> If you are using vs code. Then there is two vs code snippets to generate the service and entity code with basic crud operation. If you follow this step then you don't need to follow step number 3 and 4.
     | Trigger | Content                      |
     | ------: | ---------------------------- |
     |   `service` | `service code with basic crud api routes and socket function.` |
@@ -100,10 +140,13 @@ Entity File (e.g., user.entity.js):
     const TABLE_NAME = 'user';
 
     module.exports.create = ({ db }) => async (req, res, next) => {
-      try {
-        await db.execute(`CALL precedure(?,?)`, ['argument1', 'argument2']);
-        return res.status(200).send('data');
-      } catch (e) { next(e) }
+        try {
+            const { role } = req.params;
+            let { first_name, last_name, phone, email, password } = req.body;
+            password = await bcrypt.hash(password, 8);
+            await db.execute(`CALL register(?, ?, ?, ?, ?, ?)`, [first_name, last_name, phone, email, password, role]);
+            res.status(201).send({ message: 'User registration successful' });
+          } catch (e) { next(e) }
     };
 
     module.exports.handleClickButton = async ({ db }) => {
@@ -158,7 +201,7 @@ module.exports.create = ({ db }) => async (req, res, next) => {
 You can place your client code inside the `client` folder. The Falcon boilerplate will search for the `index.html` file to serve the client.
 
 ## Docker
-Custom network is only required for production mode because development mode will run on host network.
+
 ```bash
 # Creating bridge type network (if not already exists)
 # The database and the api will be in this network.
@@ -174,7 +217,7 @@ Two Docker Compose files are provided:
 # Running in Development Mode
 docker compose -f compose_dev.yml up
 
-# Rebuilding API Image (if needed or something went wrong)
+# Rebuilding API Image (if needed)
 docker compose -f compose_dev.yml up --build
 ```
 
