@@ -1,3 +1,4 @@
+-- Demo tution database
 DROP DATABASE IF EXISTS tution;
 CREATE DATABASE IF NOT EXISTS tution;
 

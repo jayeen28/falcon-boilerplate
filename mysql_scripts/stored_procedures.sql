@@ -1,3 +1,4 @@
+-- Demo tution database
 USE tution;
 
 DELIMITER $$
