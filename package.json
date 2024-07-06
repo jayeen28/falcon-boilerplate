@@ -6,13 +6,11 @@
   "author": "MD. Jayeen Bin Alam <md.jayeen@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "dev": "[ ! -d 'node_modules' ] && npm install; nodemon index.js",
+    "dev": "[ ! -d 'node_modules' ] && npm install; node index.js",
     "prod": "[ ! -d 'node_modules' ] && npm install; node index.js",
     "deploy": ""
   },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
+  "devDependencies": {},
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",

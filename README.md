@@ -215,10 +215,10 @@ Two Docker Compose files are provided:
 
 ```bash
 # Running in Development Mode
-docker compose -f compose_dev.yml up
+docker compose -f compose_dev.yml up --watch
 
 # Rebuilding API Image (if needed)
-docker compose -f compose_dev.yml up --build
+docker compose -f compose_dev.yml up --build --watch
 ```
 
 ```bash

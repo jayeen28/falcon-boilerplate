@@ -26,11 +26,22 @@ services:
       db:
         condition: service_healthy
     restart: on-failure
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./
+          target: /falcon
+          ignore:
+            - node_modules/
+            - yarn.lock
+            - package-lock.json
+            - data
+            - package.json
+        - action: rebuild
+          path: package.json
     environment:
       - NODE_ENV=development
     command: npm run dev
-    volumes:
-      - .:/falcon:rw
 
 volumes:
   db:
