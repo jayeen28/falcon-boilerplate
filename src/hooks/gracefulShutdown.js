@@ -12,12 +12,12 @@ module.exports = function () {
   /**
    * Event handler function for graceful shutdown events.
    *
-   * @param {Error} orgErr - The original error or event object.
+   * @param {Error} signal - The shutdown signal.
    */
-  function handleShutdownEvent(orgErr) {
+  function handleShutdownEvent(signal) {
     try {
       // Log the original error or event object.
-      console.log(`Process shutdown signal: ${orgErr}`);
+      console.log(`Process shutdown signal: ${signal}`);
 
       //****** Perform any necessary cleanup or finalization here. ******/
       this.db.end(function (err) {
