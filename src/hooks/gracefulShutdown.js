@@ -14,7 +14,7 @@ module.exports = function () {
    *
    * @param {Error} orgErr - The original error or event object.
    */
-  async function handleShutdownEvent(orgErr) {
+  function handleShutdownEvent(orgErr) {
     try {
       // Log the original error or event object.
       console.log(`Process shutdown signal: ${orgErr}`);
