@@ -39,6 +39,8 @@ services:
             - package.json
         - action: rebuild
           path: package.json
+    volumes:
+      - ./data/backend:/falcon/data/app:rw
     environment:
       - NODE_ENV=development
     command: npm run dev

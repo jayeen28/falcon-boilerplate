@@ -50,7 +50,7 @@ module.exports = class Falcon {
      * It is used to store all the app states.
      * @member {object}
      */
-    this.dataPath = path.join(this.appPath, 'data');
+    this.dataPath = path.join(this.appPath, 'data', 'backend');
 
     /**
      * Configuration settings for the API.

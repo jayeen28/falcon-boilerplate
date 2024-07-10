@@ -17,7 +17,7 @@ const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'svg', 'gif', 'avif', 'webp'];
  * Directory where files are stored.
  * @constant {string}
  */
-const fileDir = path.join(path.resolve(), 'data', 'files');
+const fileDir = path.join(path.resolve(), 'data', 'backend', 'files');
 
 // Ensure the file directory exists, creating it if necessary.
 if (!fs.existsSync(fileDir)) fs.mkdirSync(fileDir, { recursive: true });

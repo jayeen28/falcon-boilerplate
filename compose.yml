@@ -40,7 +40,7 @@ services:
       - NODE_ENV=production
     command: npm run prod
     volumes:
-      - .:/falcon:rw
+      - ./data/backend:/falcon/data/app:rw
 
 volumes:
   db:
