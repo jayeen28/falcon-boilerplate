@@ -98,7 +98,7 @@ module.exports = class Falcon {
 
       this.io = new Server(this.server, {
         cors: {
-          origin: this.config.origin,
+          origin: this.config.ORIGIN,
           methods: ['GET', 'POST'],
           credentials: true
         }
@@ -142,7 +142,7 @@ module.exports = class Falcon {
      * otherwise, the default port 4000 will be used.
      * A log message is printed to the console to indicate that the server is running.
      */
-    this.server.listen(this.config.port || 4000, () => console.info(`Server is up on port ${this.config.port}`));
+    this.server.listen(this.config.PORT || 4000, () => console.info(`Server is up on port ${this.config.PORT}`));
 
     /**
      * Register socket services for every connection.

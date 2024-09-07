@@ -25,7 +25,7 @@ module.exports.errorMiddleware = function errorMiddleware({ dataPath = path.reso
     const apiErrorPath = path.join(apiErrorDir, `${day}.log`);
 
     // Log the error if running in development mode
-    if (!config.isProduction) console.log(err);
+    if (config.RUNNING === 'dev') console.log(err);
 
     // Generate unique reference ID
     const reference = `${uuidv4()}|${year}-${month}-${day}:T${hours}:${minutes}:${seconds}`;
@@ -65,7 +65,7 @@ module.exports.errorMiddleware = function errorMiddleware({ dataPath = path.reso
       .catch((fileErr) => {
         res.status(500).send({ message: 'Something went wrong' });
         console.log(fileErr);
-        if (config.isProduction) console.log('Internal server error:\n', err);
+        if (config.RUNNING) console.log('Internal server error:\n', err);
       });
   };
 }

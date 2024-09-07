@@ -22,13 +22,13 @@ const express = require('express');
 const Falcon = require('./src/falcon');
 const mysql = require('mysql2');
 
-
+console.log(settings);
 const db = mysql.createConnection({
   user: settings.MYSQL_USER,
   password: settings.MYSQL_PASSWORD,
   database: settings.MYSQL_DATABASE,
   port: settings.MYSQL_PORT,
-  host: settings.hostname || '127.0.0.1',
+  host: settings.MYSQL_HOSTNAME || '127.0.0.1',
   multipleStatements: false
 });
 

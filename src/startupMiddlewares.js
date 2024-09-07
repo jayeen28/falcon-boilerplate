@@ -11,7 +11,7 @@ module.exports = function () {
   })
 
   this.app.use(cors({
-    origin: this.config.origin,
+    origin: this.config.ORIGIN,
     methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
     credentials: true
   }));
