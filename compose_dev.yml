@@ -2,16 +2,21 @@ version: "3"
 
 services:
   db:
-    image: mysql
-    restart: on-failure
-    network_mode: host
+    image: mongo
+    container_name: mongo_container
+    command: mongod --auth
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 6783
+      - MONGO_INITDB_DATABASE=falcon_mongo
+      - MONGO_INITDB_ROOT_USERNAME=falcon_db
+      - MONGO_INITDB_ROOT_PASSWORD=6783
+    ports:
+      - 27017:27017
     volumes:
-      - ./data/mysqlDB:/var/lib/mysql
-      - ./mysql_scripts:/docker-entrypoint-initdb.d
+      - ./data/mongodb_data:/data/db
+      - ./mongodb_init/init-mongo.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     healthcheck:
-      test: mysqladmin ping -h 127.0.0.1 --password=$$MYSQL_ROOT_PASSWORD
+      test: mongo --eval 'db.runCommand("ping").ok' localhost:27017/test --quiet
       start_period: 5s
       interval: 5s
       timeout: 5s
