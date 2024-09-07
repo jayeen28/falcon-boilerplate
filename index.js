@@ -22,7 +22,6 @@ const express = require('express');
 const Falcon = require('./src/falcon');
 const mysql = require('mysql2');
 
-console.log(settings);
 const db = mysql.createConnection({
   user: settings.MYSQL_USER,
   password: settings.MYSQL_PASSWORD,
