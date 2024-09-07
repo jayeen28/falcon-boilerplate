@@ -1,6 +1,7 @@
 const rateLimit = require("express-rate-limit");
 const cors = require('cors');
 const morgan = require('morgan');
+const { parse: formDataParse } = require('express-form-data');
 
 module.exports = function () {
   const limiter = rateLimit({
@@ -17,6 +18,7 @@ module.exports = function () {
   }));
   this.app.use(morgan('common'));
   this.app.use(this.express.json());
+  this.app.use(formDataParse());
   this.app.use(this.express.urlencoded({ extended: false }));
   this.app.use('/api', limiter, this.router);
 }
