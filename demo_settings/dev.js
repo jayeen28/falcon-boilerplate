@@ -8,4 +8,6 @@ module.exports = {
   MYSQL_PORT: 3306,
   MYSQL_HOSTNAME: 'localhost',
   RUNNING: 'dev',
+  AUTH_COOKIE_KEY: 'auth_cookie',
+  JWT_SECRET: 'falcon_is_fast',
 }

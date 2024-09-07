@@ -8,10 +8,10 @@ const fs = require('fs');
 const services = require('./services');
 const fileCtrl = require('./controllers/fileCtrl');
 const { Server } = require('socket.io');
-const startupMiddlewares = require('./startupMiddlewares');
+const startupMiddlewares = require('./middlewares/startupMiddlewares');
+const authHandler = require('./middlewares/authMiddleware');
 const EventEmitter = require('events');
 const hooks = require('./hooks');
-const injectUtils = require('./utils');
 
 module.exports = class Falcon {
   /**
@@ -39,6 +39,12 @@ module.exports = class Falcon {
      * @member {object}
      */
     this.router = new this.express.Router();
+
+    /**
+     * This middleware is for handling user authentication.
+     * @member {function}
+     */
+    this.auth = authHandler(this);
 
     /**
      * The absolute path to the application.
@@ -103,9 +109,6 @@ module.exports = class Falcon {
           credentials: true
         }
       });
-
-      // Inject the utils
-      this.utils = injectUtils(this);
 
       // Call hooks setup
       hooks.call(this);

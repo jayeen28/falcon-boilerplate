@@ -1,4 +1,5 @@
-const { errorMiddleware } = require("./middlewares");
+
+const errorMiddleware = require("../middlewares/errorMiddleware");
 const { userApi, userSocket } = require("./user/user");
 
 function apiServices() {

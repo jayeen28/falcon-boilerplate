@@ -2,6 +2,7 @@ const rateLimit = require("express-rate-limit");
 const cors = require('cors');
 const morgan = require('morgan');
 const { parse: formDataParse } = require('express-form-data');
+const socketAuthMiddleware = require("./socketAuthMiddleware");
 
 module.exports = function () {
   const limiter = rateLimit({
@@ -21,4 +22,5 @@ module.exports = function () {
   this.app.use(formDataParse());
   this.app.use(this.express.urlencoded({ extended: false }));
   this.app.use('/api', limiter, this.router);
+  this.io.use(socketAuthMiddleware(this));
 }

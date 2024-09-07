@@ -7,5 +7,7 @@ module.exports = {
   MYSQL_DATABASE: 'db_name',
   MYSQL_PORT: 3306,
   RUNNING: 'prod',
-  MYSQL_HOSTNAME: 'db'
+  MYSQL_HOSTNAME: 'db',
+  AUTH_COOKIE_KEY: 'auth_cookie',
+  JWT_SECRET: 'falcon_is_fast',
 }
