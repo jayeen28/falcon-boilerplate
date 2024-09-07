@@ -1,6 +1,6 @@
 # Falcon Boilerplate
 <img src="https://i.ibb.co/sWqXfkz/Screenshot-from-2024-04-29-15-08-28.png" align="left" width="30%" style="margin-right: 10px"/>
-Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently. This REST API server boilerplate is built upon a powerful stack of technologies, including Express.js, Socket.io, and Prisma with postgresql, to provide a comprehensive solution for web service development and database management. You can work faster like a falcon by using this template.
+Falcon Boilerplate is a service-based Node.js backend boilerplate that will help you kickstart and manage your projects more efficiently. This REST API server boilerplate is built upon a powerful stack of technologies, including Express.js, Socket.io, and MYSQL, to provide a comprehensive solution for web service development and database management. You can work faster like a falcon by using this template.
 <br clear="left"/>
 <br clear="left"/>
 
@@ -11,7 +11,6 @@ Falcon Boilerplate is a service-based Node.js backend boilerplate that will help
     | :---: | :---: |
     | [Docker](#docker)   | [Install Dependencies](#install-dependencies)   |
     || [Database Setup](#database-setup)   |
-    || [Prisma Migration](#prisma-migration)   |
     || [Start the Server](#start-the-server)   |
 
 
@@ -43,37 +42,7 @@ Follow these steps to get started with Falcon Boilerplate:
     yarn install
     ```
 
-1. <a id="database-setup">**Database Setup**</a> <br> For database management, you can install postgresql server in your system or you can run the command below to start postgresql server in a docker container
-
-    ```bash
-    docker run -d --name postgres -p 5432:5432 --restart always -e POSTGRES_USER=username -e POSTGRES_PASSWORD=password -v ./data/prismapostgres:/var/lib/postgresql/data postgres
-    ```
-
-    You can verify that the database container is running by executing:
-
-    ```bash
-    docker ps
-    ```
-    Then place the database url in a `.env` file at the root. If using docker then it will be inside compose files.
-    ```env
-    DB_URL="postgresql://username:password@localhost:5432/databasename?schema=public"
-    ```
-
-1. <a id="prisma-migration">**Prisma Migration**</a> <br> To create and apply Prisma database migrations, run one of the following commands:
-
-    Using npm:
-
-    ```bash
-    npx prisma migrate dev
-    ```
-
-    Or using yarn:
-
-    ```bash
-    yarn prisma
-    ```
-
-    This will ensure that your database schema is up to date with your application's models.
+1. <a id="database-setup">**Database Setup**</a> <br> For database you can isntall mysql in your system and place necessary information at settings/dev.js and settings/prod.js.
 
 1. <a id="start-the-server">**Start the Server**</a> <br> Start the server using nodemon to enable hot-reloading during development:
 
